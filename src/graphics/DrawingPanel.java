@@ -90,7 +90,7 @@ public class DrawingPanel extends JPanel {
 	
 	public boolean isObjectClicked(double x, double y) {
 		for(SpaceObject object : spaceObjects){
-			if(object.getDrawing().contains(x, y)) {
+			if(object.approximateHitTest(x, y)) {
 				this.currentToggled = object;
 				return true;
 			}

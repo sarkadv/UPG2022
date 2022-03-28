@@ -27,5 +27,11 @@ public class Comet extends SpaceObject {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public boolean approximateHitTest(double x, double y) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 	
 }
