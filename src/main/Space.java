@@ -5,22 +5,22 @@ import objects.SpaceObject;
 
 public class Space {
 	
-	private final double gConstant;	// gravitacni konstanta
-	private final double tStep;		// casovy krok - jaky cas ubehne za 1 s realneho casu
+	private final double G_CONST;	// gravitacni konstanta
+	private final double T_CONST;		// casovy krok - jaky cas ubehne za 1 s realneho casu
 	private List<SpaceObject> spaceObjects;
 	
-	public Space(double gConstant, double tStep, List<SpaceObject> spaceObjects) {
-		this.gConstant = gConstant;
-		this.tStep = tStep;
+	public Space(double GConstant, double TStep, List<SpaceObject> spaceObjects) {
+		this.G_CONST = GConstant;
+		this.T_CONST = TStep;
 		this.spaceObjects = spaceObjects;
 	}
 
-	public double getgConstant() {
-		return gConstant;
+	public double getGConstant() {
+		return G_CONST;
 	}
 
-	public double gettStep() {
-		return tStep;
+	public double getTStep() {
+		return T_CONST;
 	}
 
 	public List<SpaceObject> getSpaceObjects() {

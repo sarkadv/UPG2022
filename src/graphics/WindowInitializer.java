@@ -1,6 +1,9 @@
 package graphics;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Timer;
@@ -17,13 +20,12 @@ public class WindowInitializer {
 	public static void init(Space space) {
 		JFrame okno = new JFrame();
 		okno.setTitle("Sarka Dvorakova, A21B0116P, Vesmir");
-		okno.setMinimumSize(new Dimension(800, 600));
-		
 		DrawingPanel panel = new DrawingPanel(space);
 		panel.setBackground(Color.BLACK);
 		okno.add(panel);
 		
 		okno.pack(); 
+		okno.setSize(new Dimension(800, 600));
 		
 		okno.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		okno.setLocationRelativeTo(null);
@@ -72,6 +74,19 @@ public class WindowInitializer {
 				
 			}
 		});
+		
+		KeyboardFocusManager.getCurrentKeyboardFocusManager()
+        .addKeyEventDispatcher(new KeyEventDispatcher() {
+            @Override
+            public boolean dispatchKeyEvent(KeyEvent e) {
+                if (e.getID() == KeyEvent.KEY_PRESSED 
+                        && e.getKeyChar() == ' ') {
+                    panel.changeSimulationStatus();
+                }
+                
+                return false;
+            }
+        });
 	}
 
 }

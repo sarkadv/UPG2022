@@ -3,6 +3,7 @@ package objects;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
+import java.util.List;
 
 import graphics.ColorPicker;
 
@@ -17,6 +18,10 @@ public abstract class SpaceObject {
 	protected double speedX;
 	protected double speedY;
 	
+	protected double acceleration;
+	protected double accelerationX;
+	protected double accelerationY;
+	
 	protected double weight;
 	protected double radius;
 	
@@ -29,7 +34,6 @@ public abstract class SpaceObject {
 	
 	protected Color color;
 	protected Shape drawing;	 // graficka realizace objektu
-	
 
 	public SpaceObject(String name, String typ, double positionX, double positionY, 
 					double speedX, double speedY, double weight) {
@@ -49,7 +53,39 @@ public abstract class SpaceObject {
 	public abstract void draw(Graphics2D g2);
 	public abstract void drawHighlight(Graphics2D g2);
 	public abstract boolean approximateHitTest(double x, double y);
+	
+	public double computeAcceleration(List<SpaceObject> spaceObjects, int i, double GConstant) {
+		double finalAccelerationVectorX = 0;
+		double finalAccelerationVectorY = 0;
+		double finalAccelerationSize = 0;
+		
+		for(int j = 0; j < spaceObjects.size(); j++) {
+			SpaceObject objectI = spaceObjects.get(i);
+			SpaceObject objectJ = spaceObjects.get(j);
+			
+			if(i != j) {
+				double distanceVectorSize = vectorSize(objectJ.positionX, objectJ.positionY, objectI.positionX, objectI.positionY);
 
+				double accelerationX = GConstant * objectJ.weight * ((objectJ.positionX - objectI.positionX)/(distanceVectorSize*distanceVectorSize*distanceVectorSize));
+				double accelerationY = GConstant * objectJ.weight * ((objectJ.positionY - objectI.positionY)/(distanceVectorSize*distanceVectorSize*distanceVectorSize));
+				double acceleration = accelerationX + accelerationY;
+				
+				finalAccelerationVectorX += accelerationX;
+				finalAccelerationVectorY += accelerationY;
+				finalAccelerationSize += acceleration;
+			}
+		}
+
+		this.setAccelerationX(finalAccelerationVectorX);
+		this.setAccelerationY(finalAccelerationVectorY);
+		
+		return finalAccelerationSize;
+	}
+	
+	private double vectorSize(double x1, double y1, double x2, double y2) {
+		return Math.sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1));
+	}
+	
 	public String getName() {
 		return this.name;
 	}
@@ -134,6 +170,36 @@ public abstract class SpaceObject {
 		return this.drawing;
 	}
 	
-	
+	public double getAcceleration() {
+		return acceleration;
+	}
+
+	public void setAcceleration(double acceleration) {
+		this.acceleration = acceleration;
+	}
+
+	public double getAccelerationX() {
+		return accelerationX;
+	}
+
+	public void setAccelerationX(double accelerationX) {
+		this.accelerationX = accelerationX;
+	}
+
+	public double getAccelerationY() {
+		return accelerationY;
+	}
+
+	public void setAccelerationY(double accelerationY) {
+		this.accelerationY = accelerationY;
+	}
+
+	public void setSpeedX(double speedX) {
+		this.speedX = speedX;
+	}
+
+	public void setSpeedY(double speedY) {
+		this.speedY = speedY;
+	}
 
 }
