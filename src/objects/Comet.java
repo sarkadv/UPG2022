@@ -1,5 +1,6 @@
 package objects;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 
 public class Comet extends SpaceObject {
@@ -23,7 +24,7 @@ public class Comet extends SpaceObject {
 	}
 
 	@Override
-	public void drawHighlight(Graphics2D g2) {
+	public void drawHighlight(Graphics2D g2, Color color) {
 		// TODO Auto-generated method stub
 		
 	}

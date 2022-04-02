@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -26,7 +27,7 @@ public class DrawingPanel extends JPanel {
 	private double simulationStoppedWhen = 0;	// cas kdy uzivatel zastavil simulaci v sekundach
 	private double simulationResumedWhen = 0; // cas kdy uzivatel znovu spustil simulaci v sekundach
 	private double simulationStoppedFor = 0;		// jak dlouho byla simulace zastavena dohromady
-	private final double INTEGRATION_CONST = 100;
+	private final double UPDATE_CONST = 100; // kolikrat se v jednom updatu prepocita rychlost, pozice, zrychleni
 	
 	private List<SpaceObject> spaceObjects;
 	private double GConstant;
@@ -57,42 +58,8 @@ public class DrawingPanel extends JPanel {
 		lastComputingTime = (System.nanoTime() / 1000 / 1000.0) - lastComputingTime;
 			
 		if(lastComputingTime >= UPDATE_TIME) {
-			updateSystem(lastComputingTime);
+			updateSystem(lastComputingTime, g2);
 			lastComputingTime = 0;
-		}
-		
-		x_min = spaceObjects.stream().mapToDouble(object -> object.getPositionX()).min().getAsDouble();
-		x_max = spaceObjects.stream().mapToDouble(object -> object.getPositionX() + object.getRadius()*2).max().getAsDouble();
-		y_min = spaceObjects.stream().mapToDouble(object -> object.getPositionY()).min().getAsDouble();
-		y_max = spaceObjects.stream().mapToDouble(object -> object.getPositionY() + object.getRadius()*2).max().getAsDouble();
-
-		world_width = x_max - x_min;
-		
-		world_height = y_max - y_min;
-		
-		double scale_x = this.getWidth() / world_width;	// pomer okna / sveta
-														// pocet px na 1 jednotku realneho sveta
-		double scale_y = this.getHeight() / world_height;
-		
-		double scale = Math.min(scale_x, scale_y);		// scale podle mensiho z pomeru
-		
-		g2.setColor(Color.RED);
-		g2.drawRect((int)(x_min*scale), (int)(y_min*scale), (int)(world_width*scale), (int)(world_height*scale));
-		
-		for(SpaceObject object : spaceObjects) {		// nalezeni spravnych pozic po scalu
-			double x = (object.getPositionX() - Math.abs(x_min))*scale;
-			
-			double y = (object.getPositionY() - Math.abs(y_min))*scale;
-			
-			double radius = object.getRadius()*scale;
-			
-			object.setScaledPositionX(x);
-			object.setScaledPositionY(y);
-			object.setScaledRadius(radius);	
-		}
-		
-		for(SpaceObject object : spaceObjects) {		// vykresleni scaleovanych pozic
-			object.draw(g2);
 		}
 		
 		computeTime(g2); // vypocitani a vykresleni aktualniho casu simulace
@@ -130,7 +97,7 @@ public class DrawingPanel extends JPanel {
 			g2.drawString("weight: " + weightString + " kg", this.getWidth() - 225, 250);
 			g2.drawString("name: " + name, this.getWidth() - 225, 275);
 			
-			this.currentToggled.drawHighlight(g2);	// zvyrazneni prave vybraneho objektu
+			this.currentToggled.drawHighlight(g2, Color.WHITE);	// zvyrazneni prave vybraneho objektu
 		}
 
 	}
@@ -157,29 +124,82 @@ public class DrawingPanel extends JPanel {
 	 * Update zrychleni, rychlosti, pozic celeho systemu.
 	 * @param t	 ubehnuty cas od posledniho updatu v ms
 	 */
-	public void updateSystem(double t) {
+	private void updateSystem(double t, Graphics2D g2) {
 		t = t / 1000.0;	// prevod casu ms -> s
 		
 		if(simulationActive) {
-			for(int j = 0; j < INTEGRATION_CONST; j++) {
+			
+			for(int j = 0; j < UPDATE_CONST; j++) {
+				/*
 				for(int i = 0; i < spaceObjects.size(); i++) {
 					SpaceObject object = spaceObjects.get(i);
 					object.setAcceleration(object.computeAcceleration(spaceObjects, i, this.GConstant));
 				}
 					
 				for(SpaceObject object : spaceObjects) {	
-					object.setSpeedX(object.getSpeedX() + (t/INTEGRATION_CONST*0.5*object.getAccelerationX()));
-					object.setSpeedY(object.getSpeedY() + (t/INTEGRATION_CONST*0.5*object.getAccelerationY()));
+					object.setSpeedX(object.getSpeedX() + (t/UPDATE_CONST*0.5*object.getAccelerationX()));
+					object.setSpeedY(object.getSpeedY() + (t/UPDATE_CONST*0.5*object.getAccelerationY()));
 						
-					object.setPositionX(object.getPositionX() + (t/INTEGRATION_CONST * object.getSpeedX()));
-					object.setPositionY(object.getPositionY() + (t/INTEGRATION_CONST * object.getSpeedY()));
+					object.setPositionX(object.getPositionX() + (t/UPDATE_CONST * object.getSpeedX()));
+					object.setPositionY(object.getPositionY() + (t/UPDATE_CONST * object.getSpeedY()));
 						
-					object.setSpeedX(object.getSpeedX() + (t/INTEGRATION_CONST*0.5*object.getAccelerationX()));
-					object.setSpeedY(object.getSpeedY() + (t/INTEGRATION_CONST*0.5*object.getAccelerationY()));
+					object.setSpeedX(object.getSpeedX() + (t/UPDATE_CONST*0.5*object.getAccelerationX()));
+					object.setSpeedY(object.getSpeedY() + (t/UPDATE_CONST*0.5*object.getAccelerationY()));
 				}
+				*/
+				
+				updateDrawing(g2);
+			}
+		}
+		else { // simulace neni aktivni a jen vykreslime objekty
+			for(SpaceObject object : spaceObjects) {		// vykresleni scaleovanych pozic
+				object.draw(g2);
 			}
 		}
 
+	}
+	
+	private void updateDrawing(Graphics2D g2) {
+		SpaceObject x_minObject = findXMinSpaceObject();
+		SpaceObject y_minObject = findYMinSpaceObject();
+		SpaceObject x_maxObject = findXMaxSpaceObject();
+		SpaceObject y_maxObject = findYMaxSpaceObject();
+		
+		x_minObject.drawHighlight(g2, Color.BLUE);
+		x_maxObject.drawHighlight(g2, Color.RED);
+		y_minObject.drawHighlight(g2, Color.YELLOW);
+		y_maxObject.drawHighlight(g2, Color.GREEN);
+		
+		x_min = x_minObject.getPositionX();
+		y_min = y_minObject.getPositionY();
+		x_max = x_maxObject.getPositionX();
+		y_max = y_maxObject.getPositionY();
+
+		world_width = Math.abs(x_max - x_min);
+		world_height = Math.abs(y_max - y_min);
+		
+		double scale_x = (this.getWidth() - x_maxObject.getScaledRadius()*2) / world_width;	// pomer okna / sveta
+														// pocet px na 1 jednotku realneho sveta
+		double scale_y = (this.getHeight() - y_maxObject.getScaledRadius()*2) / world_height;
+		
+		double scale = Math.min(scale_x, scale_y);		// scale podle mensiho z pomeru
+		
+		g2.setColor(Color.RED);
+		g2.drawRect((int)(Math.abs((x_minObject.getPositionX() - x_min))*scale), (int)(Math.abs((y_minObject.getPositionY() - y_min))*scale), (int)(world_width*scale), (int)(Math.abs(world_height*scale)));
+		
+		for(SpaceObject object : spaceObjects) {		// nalezeni spravnych pozic po scalu
+			double x = Math.abs((object.getPositionX() - x_min))*scale;
+			double y = Math.abs((object.getPositionY() - y_min))*scale;
+			double radius = object.getRadius()*scale;
+			
+			object.setScaledRadius(radius);	
+			object.setScaledPositionX(x);
+			object.setScaledPositionY(y);
+		}
+		
+		for(SpaceObject object : spaceObjects) {		// vykresleni scaleovanych pozic
+			object.draw(g2);
+		}
 	}
 
 	public boolean isObjectClicked(double x, double y) {
@@ -211,6 +231,58 @@ public class DrawingPanel extends JPanel {
 			this.simulationResumedWhen = System.nanoTime() / 1000 / 1000 / 1000.0;
 			this.simulationStoppedFor += this.simulationResumedWhen - this.simulationStoppedWhen;
 		}
+	}
+	
+	private SpaceObject findXMinSpaceObject() {
+		SpaceObject xMin = spaceObjects.get(0);
+		
+		for(int i = 1; i < spaceObjects.size(); i++) {
+			if(spaceObjects.get(i).getPositionX() < xMin.getPositionX()) {
+				xMin = spaceObjects.get(i);
+			}
+		}
+		
+		return xMin;
+		
+	}
+	
+	private SpaceObject findYMinSpaceObject() {
+		SpaceObject yMin = spaceObjects.get(0);
+		
+		for(int i = 1; i < spaceObjects.size(); i++) {
+			if(spaceObjects.get(i).getPositionY() < yMin.getPositionY()) {
+				yMin = spaceObjects.get(i);
+			}
+		}
+		
+		return yMin;
+		
+	}
+	
+	private SpaceObject findXMaxSpaceObject() {
+		SpaceObject xMax = spaceObjects.get(0);
+		
+		for(int i = 1; i < spaceObjects.size(); i++) {
+			if(spaceObjects.get(i).getPositionX() > xMax.getPositionX()) {
+				xMax = spaceObjects.get(i);
+			}
+		}
+		
+		return xMax;
+		
+	}
+	
+	private SpaceObject findYMaxSpaceObject() {
+		SpaceObject yMax = spaceObjects.get(0);
+		
+		for(int i = 1; i < spaceObjects.size(); i++) {
+			if(spaceObjects.get(i).getPositionY() > yMax.getPositionY()) {
+				yMax = spaceObjects.get(i);
+			}
+		}
+		
+		return yMax;
+		
 	}
 	
 }

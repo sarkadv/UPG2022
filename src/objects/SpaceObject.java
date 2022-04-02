@@ -51,7 +51,7 @@ public abstract class SpaceObject {
 	
 	public abstract void draw(Graphics2D g2, double positionX, double positionY, double radius);
 	public abstract void draw(Graphics2D g2);
-	public abstract void drawHighlight(Graphics2D g2);
+	public abstract void drawHighlight(Graphics2D g2, Color color);
 	public abstract boolean approximateHitTest(double x, double y);
 	
 	public double computeAcceleration(List<SpaceObject> spaceObjects, int i, double GConstant) {

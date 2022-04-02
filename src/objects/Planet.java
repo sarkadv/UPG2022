@@ -43,9 +43,9 @@ public class Planet extends SpaceObject {
 	/**
 	 * Vykresli obrys (zvyrazneni) planety
 	 */
-	public void drawHighlight(Graphics2D g2) {
+	public void drawHighlight(Graphics2D g2, Color color) {
 		this.drawing =  new Ellipse2D.Double(this.scaledPositionX, this.scaledPositionY, 2*this.scaledRadius, 2*this.scaledRadius);
-		g2.setColor(Color.WHITE);
+		g2.setColor(color);
 		g2.draw(new Ellipse2D.Double(this.scaledPositionX, this.scaledPositionY, 2*this.scaledRadius, 2*this.scaledRadius));
 	}
 
