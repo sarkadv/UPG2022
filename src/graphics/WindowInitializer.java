@@ -19,7 +19,7 @@ public class WindowInitializer {
 	
 	public static void init(Space space) {
 		JFrame okno = new JFrame();
-		okno.setTitle("Sarka Dvorakova, A21B0116P, Vesmir");
+		okno.setTitle("Sarka Dvorakova, A21B0116P");
 		DrawingPanel panel = new DrawingPanel(space);
 		panel.setBackground(Color.BLACK);
 		okno.add(panel);

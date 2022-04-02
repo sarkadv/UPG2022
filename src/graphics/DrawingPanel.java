@@ -164,10 +164,12 @@ public class DrawingPanel extends JPanel {
 		SpaceObject x_maxObject = findXMaxSpaceObject();
 		SpaceObject y_maxObject = findYMaxSpaceObject();
 		
+		/*
 		x_minObject.drawHighlight(g2, Color.BLUE);
 		x_maxObject.drawHighlight(g2, Color.RED);
 		y_minObject.drawHighlight(g2, Color.YELLOW);
 		y_maxObject.drawHighlight(g2, Color.GREEN);
+		*/
 		
 		x_min = x_minObject.getPositionX();
 		y_min = y_minObject.getPositionY();
@@ -184,12 +186,16 @@ public class DrawingPanel extends JPanel {
 		
 		scale = Math.min(scale_x, scale_y);		// scale podle mensiho z pomeru
 		
-		//g2.setColor(Color.RED);
-		//g2.drawRect((int)(Math.abs((x_minObject.getPositionX() - x_min))*scale), (int)(Math.abs((y_minObject.getPositionY() - y_min))*scale), (int)(world_width*scale), (int)(Math.abs(world_height*scale)));
+		/*
+		g2.translate(this.getWidth()/2 - (world_width*scale)/2, this.getHeight()/2 - (world_height*scale)/2);
+		g2.setColor(Color.RED);
+		g2.drawRect((int)(Math.abs((x_minObject.getPositionX() - x_min))*scale), (int)(Math.abs((y_minObject.getPositionY() - y_min))*scale), (int)(world_width*scale), (int)(Math.abs(world_height*scale)));
+		g2.translate(-(this.getWidth()/2 - (world_width*scale)/2), -(this.getHeight()/2 - (world_height*scale)/2));
+		*/
 		
 		for(SpaceObject object : spaceObjects) {		// nalezeni spravnych pozic po scalu
-			double x = (object.getPositionX() - x_min)*scale;
-			double y = (object.getPositionY() - y_min)*scale;
+			double x = (object.getPositionX() - x_min)*scale + this.getWidth()/2 - (world_width*scale)/2;
+			double y = (object.getPositionY() - y_min)*scale + this.getHeight()/2 - (world_height*scale)/2;
 			double radius = object.getRadius()*scale;
 			
 			object.setScaledRadius(radius);	
