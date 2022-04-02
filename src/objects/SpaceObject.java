@@ -25,8 +25,8 @@ public abstract class SpaceObject {
 	protected double weight;
 	protected double radius;
 	
-	public double MIN_SIZE = 2;	// po scaleovani alespon tento polomer
-	public double MAX_SIZE = 500;	// po scaleovani max tento polomer
+	public static double MIN_SIZE = 2;	// po scaleovani alespon tento polomer
+	public static double MAX_SIZE;	// po scaleovani max tento polomer
 	
 	protected double scaledPositionX;
 	protected double scaledPositionY;

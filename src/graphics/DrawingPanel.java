@@ -186,12 +186,16 @@ public class DrawingPanel extends JPanel {
 		
 		scale = Math.min(scale_x, scale_y);		// scale podle mensiho z pomeru
 		
+		SpaceObject.MAX_SIZE = Math.min(this.getWidth(), this.getHeight());
+		
 		/*
 		g2.translate(this.getWidth()/2 - (world_width*scale)/2, this.getHeight()/2 - (world_height*scale)/2);
 		g2.setColor(Color.RED);
-		g2.drawRect((int)(Math.abs((x_minObject.getPositionX() - x_min))*scale), (int)(Math.abs((y_minObject.getPositionY() - y_min))*scale), (int)(world_width*scale), (int)(Math.abs(world_height*scale)));
+		g2.drawRect((int)(Math.abs((x_minObject.getPositionX() - x_min))*scale), (int)((y_minObject.getPositionY() - y_min)*scale), (int)(world_width*scale), (int)(world_height*scale));
 		g2.translate(-(this.getWidth()/2 - (world_width*scale)/2), -(this.getHeight()/2 - (world_height*scale)/2));
 		*/
+		
+		
 		
 		for(SpaceObject object : spaceObjects) {		// nalezeni spravnych pozic po scalu
 			double x = (object.getPositionX() - x_min)*scale + this.getWidth()/2 - (world_width*scale)/2;
