@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.util.List;
-
+import util.Vectors;
 import graphics.ColorPicker;
 
 public abstract class SpaceObject {
@@ -25,7 +25,7 @@ public abstract class SpaceObject {
 	protected double weight;
 	protected double radius;
 	
-	public static double MIN_SIZE = 2;	// po scaleovani alespon tento polomer
+	public static final double MIN_SIZE = 2;	// po scaleovani alespon tento polomer
 	public static double MAX_SIZE;	// po scaleovani max tento polomer
 	
 	protected double scaledPositionX;
@@ -63,10 +63,11 @@ public abstract class SpaceObject {
 			SpaceObject objectJ = spaceObjects.get(j);
 			
 			if(i != j) {
-				double distanceVectorSize = vectorSize(objectJ.positionX, objectJ.positionY, objectI.positionX, objectI.positionY);
+				double distanceVectorSize = Vectors.vectorSize(objectJ.positionX, objectJ.positionY, objectI.positionX, objectI.positionY);
 
 				double accelerationX = GConstant * objectJ.weight * ((objectJ.positionX - objectI.positionX)/(distanceVectorSize*distanceVectorSize*distanceVectorSize));
 				double accelerationY = GConstant * objectJ.weight * ((objectJ.positionY - objectI.positionY)/(distanceVectorSize*distanceVectorSize*distanceVectorSize));
+
 				double acceleration = accelerationX + accelerationY;
 				
 				finalAccelerationVectorX += accelerationX;
@@ -79,10 +80,6 @@ public abstract class SpaceObject {
 		this.setAccelerationY(finalAccelerationVectorY);
 		
 		return finalAccelerationSize;
-	}
-	
-	private double vectorSize(double x1, double y1, double x2, double y2) {
-		return Math.sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1));
 	}
 	
 	public String getName() {

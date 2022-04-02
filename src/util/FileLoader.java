@@ -47,20 +47,22 @@ public class FileLoader {
 				double positionX = Double.parseDouble(stringsArray[2]);
 				double positionY = Double.parseDouble(stringsArray[3]);
 				
-				double speedX = Double.parseDouble(stringsArray[4]);
-				double speedY = Double.parseDouble(stringsArray[5]);
+				double speedX = Math.abs(Double.parseDouble(stringsArray[4]));
+				double speedY = Math.abs(Double.parseDouble(stringsArray[5]));
 				
-				double weight = Double.parseDouble(stringsArray[6]);
+				double weight = Math.abs(Double.parseDouble(stringsArray[6]));
 				
 				if (type.equals("Planet")) {
 					spaceObjects.add(new Planet(name, type, positionX, positionY, speedX, speedY, weight));
 				}
+				/*
 				else if (type.equals("Comet")) {
 					spaceObjects.add(new Comet(name, type, positionX, positionY, speedX, speedY, weight));
 				}
 				else if (type.equals("Rocket")) {
 					spaceObjects.add(new Rocket(name, type, positionX, positionY, speedX, speedY, weight));
 				}
+				*/
 				else { // defaultne se vytvori planeta
 					spaceObjects.add(new Planet(name, type, positionX, positionY, speedX, speedY, weight));
 				}
