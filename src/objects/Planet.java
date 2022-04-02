@@ -24,14 +24,6 @@ public class Planet extends SpaceObject {
 	}
 
 	/**
-	 * Vykresli planetu na danych souradnicich.
-	 */
-	public void draw(Graphics2D g2, double positionX, double positionY, double radius) {
-		g2.setColor(this.color);
-		g2.fill(new Ellipse2D.Double(positionX, positionY, 2*radius, 2*radius));
-	}
-	
-	/**
 	 * Vykresli planetu na jejich souradnicich.
 	 */
 	public void draw(Graphics2D g2) {

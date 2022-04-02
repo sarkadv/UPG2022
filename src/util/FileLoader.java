@@ -61,8 +61,8 @@ public class FileLoader {
 				else if (type.equals("Rocket")) {
 					spaceObjects.add(new Rocket(name, type, positionX, positionY, speedX, speedY, weight));
 				}
-				else {
-					throw new IOException("Nespravne zapsane typy vesmirnych teles.");
+				else { // defaultne se vytvori planeta
+					spaceObjects.add(new Planet(name, type, positionX, positionY, speedX, speedY, weight));
 				}
 			}
 		}

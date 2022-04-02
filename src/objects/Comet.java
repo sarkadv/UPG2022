@@ -10,12 +10,6 @@ public class Comet extends SpaceObject {
 		
 		super(name, typ, positionX, positionY, speedX, speedY, weight);
 	}
-
-	@Override
-	public void draw(Graphics2D g2, double positionX, double positionY, double radius)  {
-		// TODO Auto-generated method stub
-		
-	}
 	
 	@Override
 	public void draw(Graphics2D g2)  {
