@@ -3,16 +3,19 @@ package graphics;
 import java.awt.Color;
 import java.util.Random;
 
+/**
+ * Trida slouzici pro uchovavani vhodnych barev.
+ */
 public class ColorPicker {
 	
-	private static Color green = new Color(79, 95, 78);
-	//private static Color purple = new Color(77, 84, 100);
-	private static Color yellow = new Color(79, 96, 100);
-	private static Color blue = new Color(79, 95, 78);
-	private static Color pink = new Color(100, 83, 95);
-	//private static Color red = new Color(100, 70, 78);
+	private static Color green = new Color(229, 255, 204);
+	private static Color purple = new Color(229, 204, 255);
+	private static Color yellow = new Color(255, 255, 204);
+	private static Color blue = new Color(204, 255, 255);
+	private static Color pink = new Color(255, 204, 229);
+	private static Color orange = new Color(255, 229, 204);
 	
-	public static Color[] colors = {green, yellow, blue, pink};
+	public static Color[] colors = {green, purple, yellow, blue, pink, orange};
 	
 	private static Random r = new Random();
 	

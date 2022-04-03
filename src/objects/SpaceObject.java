@@ -3,6 +3,7 @@ package objects;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
+import java.awt.geom.Ellipse2D;
 import java.util.List;
 import util.Vectors;
 import graphics.ColorPicker;
@@ -135,11 +136,11 @@ public abstract class SpaceObject {
 	}
 	
 	public void setScaledRadius(double radius) {
-		if(radius < this.MIN_SIZE) {
-			this.scaledRadius = this.MIN_SIZE;
+		if(radius < MIN_SIZE) {
+			this.scaledRadius = MIN_SIZE;
 		}
-		else if(radius > this.MAX_SIZE) {
-			this.scaledRadius = this.MAX_SIZE;
+		else if(radius > MAX_SIZE) {
+			this.scaledRadius = MAX_SIZE;
 		}
 		else {
 			this.scaledRadius = radius;

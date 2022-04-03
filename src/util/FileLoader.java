@@ -47,8 +47,8 @@ public class FileLoader {
 				double positionX = Double.parseDouble(stringsArray[2]);
 				double positionY = Double.parseDouble(stringsArray[3]);
 				
-				double speedX = Math.abs(Double.parseDouble(stringsArray[4]));
-				double speedY = Math.abs(Double.parseDouble(stringsArray[5]));
+				double speedX = Double.parseDouble(stringsArray[4]);
+				double speedY = Double.parseDouble(stringsArray[5]);
 				
 				double weight = Math.abs(Double.parseDouble(stringsArray[6]));
 				

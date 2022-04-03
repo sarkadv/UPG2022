@@ -26,7 +26,7 @@ public class DrawingPanel extends JPanel {
 	private double simulationStoppedWhen = 0;	// cas kdy uzivatel zastavil simulaci v sekundach
 	private double simulationResumedWhen = 0; // cas kdy uzivatel znovu spustil simulaci v sekundach
 	private double simulationStoppedFor = 0;		// jak dlouho byla simulace zastavena dohromady
-	private final double UPDATE_CONST = 100; // kolikrat se v jednom updatu prepocita rychlost, pozice, zrychleni
+	private final double UPDATE_CONST = 10; // kolikrat se v jednom updatu prepocita rychlost, pozice, zrychleni
 	
 	private List<SpaceObject> spaceObjects;
 	private double GConstant;
@@ -65,11 +65,11 @@ public class DrawingPanel extends JPanel {
 		
 		if(showingInfo) {	// vykresleni informaci o objektu
 			double x = this.currentToggled.getPositionX();
-			double y = this.currentToggled.getPositionY()*(-1);
+			double y = this.currentToggled.getPositionY();
 			double speedX = this.currentToggled.getSpeedX();
-			double speedY = this.currentToggled.getSpeedY()*(-1);
+			double speedY = this.currentToggled.getSpeedY();
 			double accelerationX = this.currentToggled.getAccelerationX();
-			double accelerationY = this.currentToggled.getAccelerationY()*(-1);
+			double accelerationY = this.currentToggled.getAccelerationY();
 			double radius = this.currentToggled.getRadius();
 			double weight = this.currentToggled.getWeight();
 			String name = this.currentToggled.getName();
@@ -96,7 +96,7 @@ public class DrawingPanel extends JPanel {
 			g2.drawString("weight: " + weightString + " kg", this.getWidth() - 225, 250);
 			g2.drawString("name: " + name, this.getWidth() - 225, 275);
 			
-			this.currentToggled.drawHighlight(g2, Color.WHITE);	// zvyrazneni prave vybraneho objektu
+			this.currentToggled.drawHighlight(g2, Color.GREEN);	// zvyrazneni prave vybraneho objektu
 		}
 
 	}
@@ -172,13 +172,13 @@ public class DrawingPanel extends JPanel {
 		world_width = Math.abs(x_max - x_min);
 		world_height = Math.abs(y_max - y_min);
 		
-		window_width = this.getWidth() - r_max*2;
-		window_height = this.getHeight() - r_max*2;
+		window_width = this.getWidth();
+		window_height = this.getHeight();
 		
-		double scale_x = window_width / world_width;	// pomer okna / sveta
+		double scale_x = (window_width - SpaceObject.MIN_SIZE*4) / world_width;		// pomer okna / sveta
 														// pocet px na 1 jednotku realneho sveta
 		
-		double scale_y = window_height / world_height;
+		double scale_y = (window_height - SpaceObject.MIN_SIZE*4) / world_height;
 		
 		scale = Math.min(scale_x, scale_y);		// scale podle mensiho z pomeru
 		
@@ -194,13 +194,16 @@ public class DrawingPanel extends JPanel {
 			object.setScaledPositionY(y);
 			
 			object.draw(g2);
+			
 		}
 	}
 
 	public boolean isObjectClicked(double x, double y) {
+		System.out.println("click");
 		for(SpaceObject object : spaceObjects){
 			if(object.approximateHitTest(x, y)) {
 				this.currentToggled = object;
+				System.out.println("object clicked");
 				return true;
 			}
 		}

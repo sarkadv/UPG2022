@@ -1,5 +1,6 @@
 package objects;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
@@ -37,6 +38,7 @@ public class Planet extends SpaceObject {
 	public void drawHighlight(Graphics2D g2, Color color) {
 		this.drawing =  new Ellipse2D.Double(this.scaledPositionX, this.scaledPositionY, 2*this.scaledRadius, 2*this.scaledRadius);
 		g2.setColor(color);
+		g2.setStroke(new BasicStroke(4));
 		g2.draw(new Ellipse2D.Double(this.scaledPositionX, this.scaledPositionY, 2*this.scaledRadius, 2*this.scaledRadius));
 	}
 
@@ -49,7 +51,7 @@ public class Planet extends SpaceObject {
 	 */
 	@Override
 	public boolean approximateHitTest(double x, double y) {
-		double tolerance = 10/this.scaledRadius;
+		double tolerance = 15/this.scaledRadius;
 		Ellipse2D area = new Ellipse2D.Double(this.scaledPositionX - tolerance, this.scaledPositionY - tolerance,
 				2*this.scaledRadius + 2*tolerance, 2*this.scaledRadius + 2*tolerance);
 		
