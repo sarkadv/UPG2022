@@ -3,6 +3,9 @@ package objects;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
+/**
+ * Trida v budoucnu reprezentujici raketu.
+ */
 public class Rocket extends SpaceObject {
 	
 	public Rocket(String name, String typ, double positionX, double positionY, 

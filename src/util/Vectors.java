@@ -1,7 +1,13 @@
 package util;
 
+/**
+ * Trida pro pocitani s vektory.
+ */
 public class Vectors {
 	
+	/**
+	 * privatni konstruktor - nechceme vytvorit instanci.
+	 */
 	private Vectors() {};
 	
 	/**
@@ -10,7 +16,7 @@ public class Vectors {
 	 * @param y1	y-souradnice pocatecniho bodu
 	 * @param x2	x-souradnice koncoveho bodu
 	 * @param y2	y-souradnice koncoveho bodu
-	 * @return
+	 * @return		velikost vektoru
 	 */
 	public static double vectorSize(double x1, double y1, double x2, double y2) {
 		return Math.sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1));

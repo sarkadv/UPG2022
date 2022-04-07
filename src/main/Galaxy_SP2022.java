@@ -6,6 +6,9 @@ import graphics.WindowInitializer;
 import objects.SpaceObject;
 import util.FileLoader;
 
+/**
+ * Hlavni trida, ktera nacte informace ze souboru a vytvori odpovidajici instanci vesmiru.
+ */
 public class Galaxy_SP2022 {
 	
 	public static void main(String[] args) {
@@ -16,8 +19,8 @@ public class Galaxy_SP2022 {
 		List<SpaceObject> spaceObjects = null;
 		
 		try {
-			firstLine = FileLoader.loadFirstLine(path);
-			spaceObjects = FileLoader.loadSpaceObjects(path);
+			firstLine = FileLoader.loadFirstLine(path);		// nacteni prvni radky souboru
+			spaceObjects = FileLoader.loadSpaceObjects(path);	// nacteni ostatnich radek s vesmirnymi objekty
 		} catch (IOException e) {
 			System.out.println(e.getMessage());
 		}
@@ -25,9 +28,9 @@ public class Galaxy_SP2022 {
 		double gConstant = Double.parseDouble(firstLine[0]);
 		double tStep = Double.parseDouble(firstLine[1]);
 		
-		Space space = new Space(gConstant, tStep, spaceObjects);
+		Space space = new Space(gConstant, tStep, spaceObjects);		// vytvoreni instance vesmiru
 		
-	 	WindowInitializer.init(space);
+	 	WindowInitializer.init(space);	// predani instance do tridy vytvarejici okno
 
 	}
 }

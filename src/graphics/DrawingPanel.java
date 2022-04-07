@@ -16,31 +16,67 @@ import objects.SpaceObject;
 
 public class DrawingPanel extends JPanel {
 	
+	/** instance vesmiru - obsahuje objekty a dulezite konstanty */
 	private Space space;
-	private long startTime = System.nanoTime();
-	private long timeNow;
-	private double simulationTimeS; // cas simulace v sekundach
-	private double actualTimeS;		// opravdovy cas v sekundach
-	private final int UPDATE_TIME = 17; // kazdych 17 ms update simulace - 1000 : 60 = 17 ms ... 60 snimku za vterinu
-	private boolean simulationActive = true; // zmeni se na false kdyz uzivatel zastavi cas
-	private double simulationStoppedWhen = 0;	// cas kdy uzivatel zastavil simulaci v sekundach
-	private double simulationResumedWhen = 0; // cas kdy uzivatel znovu spustil simulaci v sekundach
-	private double simulationStoppedFor = 0;		// jak dlouho byla simulace zastavena dohromady
-	private final double UPDATE_CONST = 10; // kolikrat se v jednom updatu prepocita rychlost, pozice, zrychleni
 	
+	/** cas zalozeni instance v nanosekundach */
+	private long startTime = System.nanoTime();
+	
+	/** cas simulace v sekundach */
+	private double simulationTimeS;
+	
+	/** opravdovy nas cas v sekundach */
+	private double actualTimeS;		
+	
+	/** jak casto se ma updatovat simulace v ms - 17 ms je 60 snimku za vterinu */
+	private final int UPDATE_TIME = 17; 
+	
+	/** je simulace aktivni / pozastavena? */
+	private boolean simulationActive = true; 
+	
+	/** cas zastaveni simulace v sekundach */
+	private double simulationStoppedWhen = 0;
+	
+	/** cas pokracovani simulace v sekundach */
+	private double simulationResumedWhen = 0; 
+	
+	/** cas zastavene simulace celkem v sekundach */
+	private double simulationStoppedFor = 0;	
+	
+	/** kolikrat se v jednom updatu simulace prepocita zrychleni, rychlost, pozice, prekresleni */
+	private final double UPDATE_CONST = 100;
+	
+	/** kolekce vsech objektu typovana na jejich spolecneho abstraktniho predka */
 	private List<SpaceObject> spaceObjects;
+	
+	/** gravitacni konstanta */
 	private double GConstant;
+	
+	/** casovy krok simulace */
 	private double TStep;
 
-	private double x_min, x_max, y_min, y_max, r_max;
+	/** extremy pozic objektu */
+	private double x_min, x_max, y_min, y_max;
+	
+	/** rozmery simulacniho sveta */
 	private double world_width, world_height;
+	
+	/** rozmery okna aplikace */
 	private double window_width, window_height;
+	
+	/** scalem nasobime souradnice, aby se vesly do okna */
 	private double scale;
 	
+	/** uzivatelem prave vybrana planeta pro zobrazeni informaci */
+	private SpaceObject currentToggled = null;
 	
-	private SpaceObject currentToggled = null; // vybrana planeta pro zobrazeni informaci
+	/** jsou prave v pravem hornim rohu zobrazovany informace o planete? */
 	private boolean showingInfo = false;
 	
+	/**
+	 * Konstruktor nastavi panelu rozmery a dulezite instance + konstanty.
+	 * @param space		instance vesmiru
+	 */
 	public DrawingPanel(Space space) {
 		this.setPreferredSize(new Dimension(800, 600));
 		this.space = space;
@@ -48,107 +84,104 @@ public class DrawingPanel extends JPanel {
 		this.GConstant = space.getGConstant();
 		this.TStep = space.getTStep();
 	}
-	
+
+	/** 
+	 * Hlavni smycka aplikace.
+	 * @param g		graficky kontext
+	 */
 	@Override
 	public void paint(Graphics g) {
 		super.paint(g);
 		
 		Graphics2D g2 = (Graphics2D)g;
 		
-		double currentTime = (System.nanoTime() - this.startTime) / 1000 / 1000.0; // nynejsi cas v ms
-		
-		if(currentTime % this.UPDATE_TIME < this.UPDATE_TIME) {
-			updateSystem(this.UPDATE_TIME, g2);
+		double currentTime = (System.nanoTime() - this.startTime) / 1000 / 1000.0; // nynejsi cas od vytvoreni instance v ms
+		if(currentTime % this.UPDATE_TIME < this.UPDATE_TIME) {	
+			updateSystem(this.UPDATE_TIME, g2);		// simulace je prepocitana a prekreslena
 		}
 		
-		computeTime(g2); // vypocitani a vykresleni aktualniho casu simulace
+		computeTime(); // vypocitani aktualniho casu simulace
+		drawTime(g2);	// vykresleni casu simulace
 		
-		if(showingInfo) {	// vykresleni informaci o objektu
-			double x = this.currentToggled.getPositionX();
-			double y = this.currentToggled.getPositionY();
-			double speedX = this.currentToggled.getSpeedX();
-			double speedY = this.currentToggled.getSpeedY();
-			double accelerationX = this.currentToggled.getAccelerationX();
-			double accelerationY = this.currentToggled.getAccelerationY();
-			double radius = this.currentToggled.getRadius();
-			double weight = this.currentToggled.getWeight();
-			String name = this.currentToggled.getName();
-			
-			String xString = String.format("%.3g", x);
-			String yString = String.format("%.3g", y);
-			String speedXString = String.format("%.3g", speedX);
-			String speedYString = String.format("%.3g", speedY);
-			String accelerationXString = String.format("%.3g", accelerationX);
-			String accelerationYString = String.format("%.3g", accelerationY);
-			String radiusString = String.format("%.3g", radius);
-			String weightString = String.format("%.3g", weight);
-			
-			g2.setColor(Color.pink);
-			g2.setFont(new Font("Monospaced", Font.PLAIN, 10));
-			g2.setColor(Color.pink);
-			g2.drawString("X position: " + xString + " km", this.getWidth() - 225, 75);
-			g2.drawString("Y position: " + yString + " km", this.getWidth() - 225, 100);
-			g2.drawString("X speed: " + speedXString + " km/h", this.getWidth() - 225, 125);
-			g2.drawString("Y speed: " + speedYString + " km/h", this.getWidth() - 225, 150);
-			g2.drawString("X acceleration: " + accelerationXString + " km/h", this.getWidth() - 225, 175);
-			g2.drawString("Y acceleration: " + accelerationYString + " km/h", this.getWidth() - 225, 200);
-			g2.drawString("radius: " + radiusString + " km", this.getWidth() - 225, 225);
-			g2.drawString("weight: " + weightString + " kg", this.getWidth() - 225, 250);
-			g2.drawString("name: " + name, this.getWidth() - 225, 275);
-			
-			this.currentToggled.drawHighlight(g2, Color.GREEN);	// zvyrazneni prave vybraneho objektu
+		if(showingInfo) {	
+			drawInfo(g2);	// vykresleni informaci o objektu, pokud je nejaky vybran
 		}
 
 	}
 	
-	private void computeTime(Graphics2D g2) {
-		timeNow = System.nanoTime();
+	/**
+	 * Metoda prepocita cas simulace a opravdovy cas.
+	 */
+	private void computeTime() {
+		long timeNow = System.nanoTime();
 		double currentTimePeriodS = (timeNow - startTime) / 1000 / 1000 / 1000.0;
 		
 		if(simulationActive) {
 			this.simulationTimeS = currentTimePeriodS * this.TStep - this.simulationStoppedFor * this.TStep;
 			this.actualTimeS = currentTimePeriodS - this.simulationStoppedFor;
 		}
-		
-		String simulationTimeString = String.format("%.0g", simulationTimeS);
-		String actualTimeString = String.format("%.0f", actualTimeS);
-		
-		g2.setColor(Color.pink);
-		g2.setFont(new Font("Monospaced", Font.PLAIN, 10));
-		g2.drawString("actual Time: " + actualTimeString + " s", this.getWidth() - 225, 25); // vypsani aktualniho casu simulace
-		g2.drawString("simulation Time: " + simulationTimeString + " s", this.getWidth() - 225, 50); // vypsani aktualniho casu simulace
 	}
 	
 	/**
-	 * Update zrychleni, rychlosti, pozic celeho systemu.
+	 * Metoda vykresli informace o case simulace a opravdovem case na obrazovku.
+	 * @param g2	graficky kontext
+	 */
+	private void drawTime(Graphics2D g2) {
+		String simulationTimeString = String.format("%.0g", simulationTimeS);
+		String actualTimeString = String.format("%.0f", actualTimeS);
+		
+		g2.setFont(new Font("Monospaced", Font.PLAIN, 10));
+		g2.setColor(Color.MAGENTA);
+		g2.drawString("actual Time: " + actualTimeString + " s", this.getWidth() - 225, 25);
+		g2.drawString("simulation Time: " + simulationTimeString + " s", this.getWidth() - 225, 50); 
+	}
+	
+	/**
+	 * Metoda prepocita zrychleni, rychlosti, pozice celeho systemu.
 	 * @param t	 ubehly cas od posledniho updatu v ms
 	 */
 	private void updateSystem(double t, Graphics2D g2) {
 		t = (t/1000.0) * this.TStep;	// prevod casu ms -> s, pote prevod na cas simulace
 		
-		if(simulationActive) {
+		if(simulationActive) {	// simulace aktivni, hybe se
 			for(int j = 0; j < UPDATE_CONST; j++) {
 				for(int i = 0; i < spaceObjects.size(); i++) {
 					SpaceObject object = spaceObjects.get(i);
-					object.setAcceleration(object.computeAcceleration(spaceObjects, i, this.GConstant));
+					object.computeAcceleration(spaceObjects, i, this.GConstant);
 				}
 					
-				for(SpaceObject object : spaceObjects) {	
+				for(SpaceObject object : spaceObjects) {
 					
-					object.setSpeedX(object.getSpeedX() + (((t/UPDATE_CONST)*0.5)*object.getAccelerationX()));
-					object.setSpeedY(object.getSpeedY() + (((t/UPDATE_CONST)*0.5)*object.getAccelerationY()));
+					double currentSpeedX = object.getSpeedX();
+					double currentSpeedY = object.getSpeedY();
+					double deltaT = (t/UPDATE_CONST)*0.5;
+					double currentAccelerationX = object.getAccelerationX();
+					double currentAccelerationY = object.getAccelerationY();
 					
-					object.setPositionX(object.getPositionX() + ((t/UPDATE_CONST) * object.getSpeedX()));
-					object.setPositionY(object.getPositionY() + ((t/UPDATE_CONST) * object.getSpeedY()));
+					object.setSpeedX(currentSpeedX + deltaT * currentAccelerationX);
+					object.setSpeedY(currentSpeedY + deltaT * currentAccelerationY);
+					
+					if(object.getName().equals("Planet54")) {
+						System.out.println(currentAccelerationX);
+						System.out.println(currentSpeedY);
+						System.out.println("-----------------");
+					}
+					
+					double currentPositionX = object.getPositionX();
+					double currentPositionY = object.getPositionY();
+					
+					object.setPositionX(currentPositionX + deltaT * currentSpeedX);
+					object.setPositionY(currentPositionY + deltaT * currentSpeedY);
 						
-					object.setSpeedX(object.getSpeedX() + (((t/UPDATE_CONST)*0.5)*object.getAccelerationX()));
-					object.setSpeedY(object.getSpeedY() + (((t/UPDATE_CONST)*0.5)*object.getAccelerationY()));
+					object.setSpeedX(currentSpeedX + deltaT * currentAccelerationX);
+					object.setSpeedY(currentSpeedY + deltaT * currentAccelerationY);
+					
 				}
 				
 				updateDrawing(g2);
 			}
 		}
-		else {
+		else {	// simulace neni aktivni, vykreslime staticke objekty
 			for(int j = 0; j < UPDATE_CONST; j++) {
 				updateDrawing(g2);
 			}
@@ -156,18 +189,21 @@ public class DrawingPanel extends JPanel {
 
 	}
 	
+	/**
+	 * Metoda nejdrive najde spravne scaleovane pozice a rozmery pro objekty a pote je vykresli.
+	 * @param g2	graficky kontext
+	 */
 	private void updateDrawing(Graphics2D g2) {
+		// objekty s extremnimi souradnicemi
 		SpaceObject x_minObject = findXMinSpaceObject();
 		SpaceObject y_minObject = findYMinSpaceObject();
 		SpaceObject x_maxObject = findXMaxSpaceObject();
 		SpaceObject y_maxObject = findYMaxSpaceObject();
-		SpaceObject r_maxObject = findRadiusMaxSpaceObject();
 		
 		x_min = x_minObject.getPositionX();
 		y_min = y_minObject.getPositionY();
 		x_max = x_maxObject.getPositionX() + x_maxObject.getRadius()*2;
 		y_max = y_maxObject.getPositionY() + y_maxObject.getRadius()*2;
-		r_max = r_maxObject.getRadius();
 
 		world_width = Math.abs(x_max - x_min);
 		world_height = Math.abs(y_max - y_min);
@@ -175,14 +211,13 @@ public class DrawingPanel extends JPanel {
 		window_width = this.getWidth();
 		window_height = this.getHeight();
 		
-		double scale_x = (window_width - SpaceObject.MIN_SIZE*4) / world_width;		// pomer okna / sveta
-														// pocet px na 1 jednotku realneho sveta
-		
-		double scale_y = (window_height - SpaceObject.MIN_SIZE*4) / world_height;
+		// pomer okna / sveta
+		double scale_x = (window_width - SpaceObject.MIN_RADIUS*4) / world_width;		
+		double scale_y = (window_height - SpaceObject.MIN_RADIUS*4) / world_height;
 		
 		scale = Math.min(scale_x, scale_y);		// scale podle mensiho z pomeru
 		
-		SpaceObject.MAX_SIZE = Math.min(this.getWidth(), this.getHeight());
+		SpaceObject.MAX_RADIUS = Math.min(this.getWidth()/2, this.getHeight()/2);	// nejvyssi mozny polomer objektu podle velikosti okna
 		
 		for(SpaceObject object : spaceObjects) {		// nalezeni spravnych pozic po scalu
 			double x = (object.getPositionX() - x_min)*scale + this.getWidth()/2 - (world_width*scale)/2;
@@ -193,17 +228,21 @@ public class DrawingPanel extends JPanel {
 			object.setScaledPositionX(x);
 			object.setScaledPositionY(y);
 			
-			object.draw(g2);
+			object.draw(g2);	// vykresleni objektu
 			
 		}
 	}
 
+	/**
+	 * Metoda zjisti, zda na nektery z objektu uzivatel kliknul a podle toho nastavi vybrany objekt.
+	 * @param x		souradnice x kliknuti
+	 * @param y		souradnice y kliknuti
+	 * @return		true - na nektery z objektu uzivatel kliknul / jinak false
+	 */
 	public boolean isObjectClicked(double x, double y) {
-		System.out.println("click");
 		for(SpaceObject object : spaceObjects){
 			if(object.approximateHitTest(x, y)) {
 				this.currentToggled = object;
-				System.out.println("object clicked");
 				return true;
 			}
 		}
@@ -211,14 +250,65 @@ public class DrawingPanel extends JPanel {
 		return false;
 	}
 	
+	/**
+	 * Metoda nastavi promennou pro zobrazovani informaci na true.
+	 */
 	public void showInfo() {
 		this.showingInfo = true;
 	}
 	
+	/**
+	 * Metoda vykresli informace o vybranem objektu do praveho horniho rohu.
+	 * @param g2	graficky kontext
+	 */
+	private void drawInfo(Graphics2D g2) {
+		
+		this.currentToggled.drawHighlight(g2, Color.GREEN);	// zvyrazneni prave vybraneho objektu
+		
+		double x = this.currentToggled.getPositionX();
+		double y = this.currentToggled.getPositionY();
+		double speedX = this.currentToggled.getSpeedX();
+		double speedY = this.currentToggled.getSpeedY();
+		double accelerationX = this.currentToggled.getAccelerationX();
+		double accelerationY = this.currentToggled.getAccelerationY();
+		double radius = this.currentToggled.getRadius();
+		double weight = this.currentToggled.getWeight();
+		String name = this.currentToggled.getName();
+		
+		// formatovani na format s exponentem 10
+		String xString = String.format("%.3g", x);
+		String yString = String.format("%.3g", y);
+		String speedXString = String.format("%.3g", speedX);
+		String speedYString = String.format("%.3g", speedY);
+		String accelerationXString = String.format("%.3g", accelerationX);
+		String accelerationYString = String.format("%.3g", accelerationY);
+		String radiusString = String.format("%.3g", radius);
+		String weightString = String.format("%.3g", weight);
+		
+		g2.setFont(new Font("Monospaced", Font.PLAIN, 10));
+		g2.setColor(Color.MAGENTA);
+		g2.drawString("X position: " + xString + " km", this.getWidth() - 225, 75);
+		g2.drawString("Y position: " + yString + " km", this.getWidth() - 225, 100);
+		g2.drawString("X speed: " + speedXString + " km/h", this.getWidth() - 225, 125);
+		g2.drawString("Y speed: " + speedYString + " km/h", this.getWidth() - 225, 150);
+		g2.drawString("X acceleration: " + accelerationXString + " km/h", this.getWidth() - 225, 175);
+		g2.drawString("Y acceleration: " + accelerationYString + " km/h", this.getWidth() - 225, 200);
+		g2.drawString("radius: " + radiusString + " km", this.getWidth() - 225, 225);
+		g2.drawString("weight: " + weightString + " kg", this.getWidth() - 225, 250);
+		g2.drawString("name: " + name, this.getWidth() - 225, 275);
+		
+	}
+	
+	/**
+	 * Metoda nastavi promennou pro zobrazovani informaci na false.
+	 */
 	public void stopShowingInfo() {
 		this.showingInfo = false;
 	}
 	
+	/**
+	 * Metoda prepina statusy simulace a uklada casy prepnuti.
+	 */
 	public void changeSimulationStatus() {
 		if(simulationActive) {
 			this.simulationActive = false;
@@ -231,6 +321,10 @@ public class DrawingPanel extends JPanel {
 		}
 	}
 	
+	/**
+	 * Metoda najde objekt s nejmensi souradnici X.
+	 * @return		objekt s nejmensi souradnici X
+	 */
 	private SpaceObject findXMinSpaceObject() {
 		SpaceObject xMin = spaceObjects.get(0);
 		
@@ -244,6 +338,10 @@ public class DrawingPanel extends JPanel {
 		
 	}
 	
+	/**
+	 * Metoda najde objekt s nejmensi souradnici Y.
+	 * @return		objekt s nejmensi souradnici Y
+	 */
 	private SpaceObject findYMinSpaceObject() {
 		SpaceObject yMin = spaceObjects.get(0);
 		
@@ -257,6 +355,10 @@ public class DrawingPanel extends JPanel {
 		
 	}
 	
+	/**
+	 * Metoda najde objekt s nejvetsi souradnici X.
+	 * @return		objekt s nejvetsi souradnici X
+	 */
 	private SpaceObject findXMaxSpaceObject() {
 		SpaceObject xMax = spaceObjects.get(0);
 		
@@ -270,6 +372,10 @@ public class DrawingPanel extends JPanel {
 		
 	}
 	
+	/**
+	 * Metoda najde objekt s nejvetsi souradnici Y.
+	 * @return		objekt s nejvetsi souradnici Y
+	 */
 	private SpaceObject findYMaxSpaceObject() {
 		SpaceObject yMax = spaceObjects.get(0);
 		
@@ -282,7 +388,11 @@ public class DrawingPanel extends JPanel {
 		return yMax;
 	}
 	
-	private SpaceObject findRadiusMaxSpaceObject() {
+	/**
+	 * Metoda najde objekt s nejvetsim polomerem.
+	 * @return		objekt s nejvetsim polomerem
+	 */
+	private SpaceObject findMaxRadiusSpaceObject() {
 		SpaceObject rMax = spaceObjects.get(0);
 		
 		for(int i = 1; i < spaceObjects.size(); i++) {

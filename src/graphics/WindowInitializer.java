@@ -13,6 +13,9 @@ import javax.swing.JFrame;
 
 import main.Space;
 
+/**
+ * Trida pro vytvoreni a zakladni nastaveni okna.
+ */
 public class WindowInitializer {
 	
 	private WindowInitializer() {};
@@ -20,12 +23,13 @@ public class WindowInitializer {
 	public static void init(Space space) {
 		JFrame okno = new JFrame();
 		okno.setTitle("Sarka Dvorakova, A21B0116P");
-		DrawingPanel panel = new DrawingPanel(space);
-		panel.setBackground(Color.BLACK);
-		okno.add(panel);
 		
+		DrawingPanel panel = new DrawingPanel(space);	// predani instance vesmiru do vykreslovaciho panelu
+		panel.setBackground(Color.BLACK);
+		
+		okno.add(panel);
 		okno.pack(); 
-		okno.setSize(new Dimension(800, 600));
+		okno.setSize(new Dimension(800, 600));	// zakladni rozmery 800 x 600 px
 		
 		okno.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		okno.setLocationRelativeTo(null);
@@ -34,9 +38,9 @@ public class WindowInitializer {
 		Timer tm = new Timer();	
 		tm.schedule(new TimerTask() {
 			public void run() {
-				panel.repaint();
+				panel.repaint();	// panel se prekresli kazdych 17 ms
 			}
-		}, 0, 20);
+		}, 0, 17);
 		
 		panel.addMouseListener(new MouseListener() {
 			
@@ -47,8 +51,13 @@ public class WindowInitializer {
 			}
 			
 			@Override
+			/**
+			 * Metoda zjisti, zda uzivatel kliknul na nejaky objekt a pokud ano, zobrazi info o objektu.
+			 * Pokud uzivatel kliknul mimo, info je smazano.
+			 * @param e		udalost
+			 */
 			public void mousePressed(MouseEvent e) {
-				if(panel.isObjectClicked(e.getX(), e.getY())) {
+				if(panel.isObjectClicked(e.getX(), e.getY())) {	
 					panel.showInfo();
 				}
 				else {
@@ -75,12 +84,15 @@ public class WindowInitializer {
 			}
 		});
 		
-		KeyboardFocusManager.getCurrentKeyboardFocusManager()
-        .addKeyEventDispatcher(new KeyEventDispatcher() {
+		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
             @Override
+            /**
+             * Pokud uzivatel zmacne mezernik, simulace se pozastavi / znovu rozbehne.
+             * @param e		udalost
+             * @return		true pokud uzivatel zmacknul mezernik / jinak false
+             */
             public boolean dispatchKeyEvent(KeyEvent e) {
-                if (e.getID() == KeyEvent.KEY_PRESSED 
-                        && e.getKeyChar() == ' ') {
+                if (e.getID() == KeyEvent.KEY_PRESSED && e.getKeyChar() == ' ') {
                     panel.changeSimulationStatus();
                 }
                 

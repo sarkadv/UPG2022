@@ -5,8 +5,21 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 
+/**
+ * Trida reprezentujici planetu.
+ */
 public class Planet extends SpaceObject {
 	
+	/**
+	 * Konstruktor pro vytvoreni instance planety.
+	 * @param name			nazev
+	 * @param typ			typ
+	 * @param positionX		x-souradnice leveho horniho rohu
+	 * @param positionY		y-souradnice leveho horniho rohu
+	 * @param speedX		rychlost v ose x
+	 * @param speedY		rychlost v ose y
+	 * @param weight		vaha
+	 */
 	public Planet(String name, String typ, double positionX, double positionY, 
 			double speedX, double speedY, double weight) {
 		
@@ -24,7 +37,7 @@ public class Planet extends SpaceObject {
 	}
 
 	/**
-	 * Vykresli planetu na jejich souradnicich.
+	 * Metoda vykresli planetu na jejich souradnicich.
 	 */
 	public void draw(Graphics2D g2) {
 		this.drawing =  new Ellipse2D.Double(this.scaledPositionX, this.scaledPositionY, 2*this.scaledRadius, 2*this.scaledRadius);
@@ -33,7 +46,7 @@ public class Planet extends SpaceObject {
 	}
 	
 	/**
-	 * Vykresli obrys (zvyrazneni) planety
+	 * Metoda vykresli obrys (zvyrazneni) planety
 	 */
 	public void drawHighlight(Graphics2D g2, Color color) {
 		this.drawing =  new Ellipse2D.Double(this.scaledPositionX, this.scaledPositionY, 2*this.scaledRadius, 2*this.scaledRadius);
@@ -44,14 +57,17 @@ public class Planet extends SpaceObject {
 
 	/**
 	 * Priblizny hit-test pro planetu.
-	 * @param g2
+	 * Tolerance je tim vetsi, cim mensi je planeta. Pro velke planety s blizi nule.
+	 * @param g2	graficky kontext
 	 * @param x		x-souradnice kliku
 	 * @param y		y-souradnice kliku
-	 * @return
+	 * @return		vysledek hit-testu
 	 */
 	@Override
 	public boolean approximateHitTest(double x, double y) {
 		double tolerance = 15/this.scaledRadius;
+		
+		// nalezeni oblasti kolem planety
 		Ellipse2D area = new Ellipse2D.Double(this.scaledPositionX - tolerance, this.scaledPositionY - tolerance,
 				2*this.scaledRadius + 2*tolerance, 2*this.scaledRadius + 2*tolerance);
 		

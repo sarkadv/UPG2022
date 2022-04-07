@@ -10,10 +10,22 @@ import objects.Planet;
 import objects.Rocket;
 import objects.SpaceObject;
 
+/**
+ * Trida pro nacitani ze souboru.
+ */
 public class FileLoader {
 	
+	/**
+	 * Privatni konstruktor - nechceme vytvorit instanci.
+	 */
 	private FileLoader() {}
 	
+	/**
+	 * Nacteni prvni radky souboru, ktera obsahuje gravitacni konstantu a casovy krok.
+	 * @param path			cesta k souboru
+	 * @return				pole nactenych hodnot	
+	 * @throws IOException
+	 */
 	public static String[] loadFirstLine(String path) throws IOException {
 		File file = new File(path);
 		
@@ -27,6 +39,12 @@ public class FileLoader {
 		
 	}
 	
+	/**
+	 * Nacteni vsech (krome prvni) radek souboru, ktere obsahuji vesmirna telesa.
+	 * @param path			cesta k souboru
+	 * @return				kolekce nactenych hodnot	
+	 * @throws IOException
+	 */
 	public static List<SpaceObject> loadSpaceObjects(String path) throws IOException {
 		File file = new File(path);
 		
