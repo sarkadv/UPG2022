@@ -25,6 +25,9 @@ public abstract class SpaceObject {
 	/** y-souradnice */
 	protected double positionY;
 	
+	/** celkova velikost rychlosti */
+	protected double speed;
+	
 	/** x-ova slozka rychlosti */
 	protected double speedX;
 	
@@ -94,22 +97,27 @@ public abstract class SpaceObject {
 	public abstract void draw(Graphics2D g2);
 	public abstract void drawHighlight(Graphics2D g2, Color color);
 	public abstract boolean approximateHitTest(double x, double y);
+	public abstract double findRadius();
 	
-	public void computeAcceleration(List<SpaceObject> spaceObjects, int i, double GConstant) {
+	public void computeAcceleration(List<SpaceObject> spaceObjects, int i, double GConstant, boolean collision) {
 		double forceXSum = 0;
 		double forceYSum = 0;
 		
+		SpaceObject objectI = this;
+		
 		for(int j = 0; j < spaceObjects.size(); j++) {
-			SpaceObject objectI = spaceObjects.get(i);
 			SpaceObject objectJ = spaceObjects.get(j);
 			
 			if(i != j) {
 				double distanceX = objectJ.positionX - objectI.positionX;
 				double distanceY = objectJ.positionY - objectI.positionY;
+				
 				double distanceBetweenObjects = Math.sqrt((distanceX * distanceX) + (distanceY * distanceY));
 				
-				if(Math.abs(distanceBetweenObjects) < 0.05) {
-					distanceBetweenObjects = 0.05;
+				if(collision == false) {
+					if (distanceBetweenObjects < objectJ.radius + objectI.radius) {
+						distanceBetweenObjects = objectJ.radius + objectI.radius;
+					}
 				}
 				
 				double force = (GConstant * objectI.weight * objectJ.weight)/(distanceBetweenObjects * distanceBetweenObjects);
@@ -129,31 +137,59 @@ public abstract class SpaceObject {
 		
 		this.setAccelerationX(accelerationX);
 		this.setAccelerationY(accelerationY);
+		this.setAcceleration(Vectors.vectorAddition(accelerationX, accelerationY));
 		
 	}
 	
-	public void computeAcceleration2(List<SpaceObject> spaceObjects, int i, double GConstant) {
-		double finalAccelerationVectorX = 0;
-		double finalAccelerationVectorY = 0;
+	public void checkForCollision(List<SpaceObject> spaceObjects, int i) {
+		SpaceObject objectI = this;
 		
 		for(int j = 0; j < spaceObjects.size(); j++) {
-			SpaceObject objectI = this;
 			SpaceObject objectJ = spaceObjects.get(j);
 			
 			if(i != j) {
-				double distanceVectorSize = Vectors.vectorSize(objectJ.positionX, objectJ.positionY, objectI.positionX, objectI.positionY);
-
-				double accelerationX = GConstant * objectJ.weight * ((objectJ.positionX - objectI.positionX) / (distanceVectorSize * distanceVectorSize * distanceVectorSize));
-				double accelerationY = GConstant * objectJ.weight * ((objectJ.positionY - objectI.positionY) / (distanceVectorSize * distanceVectorSize * distanceVectorSize));
-
+				double distanceX = objectJ.positionX - objectI.positionX;
+				double distanceY = objectJ.positionY - objectI.positionY;
 				
-				finalAccelerationVectorX += accelerationX;
-				finalAccelerationVectorY += accelerationY;
+				double distanceBetweenObjects = Math.sqrt((distanceX * distanceX) + (distanceY * distanceY));
+				
+				if(distanceBetweenObjects <= objectI.radius + objectJ.radius) {
+					SpaceObject biggerObject = objectI;
+					SpaceObject smallerObject = objectJ;
+					
+					if(objectI.weight < objectJ.weight) {
+						biggerObject = objectJ;
+						smallerObject = objectI;
+					}
+					
+					double ratio = smallerObject.weight / biggerObject.weight;	// pomer vahy mensiho objektu ku vetsimu
+					
+					double newWeight = biggerObject.weight + smallerObject.weight;
+					double newRadius = biggerObject.findRadius();
+					
+					double newSpeedX = biggerObject.speedX + (smallerObject.speedX)*ratio;
+					double newSpeedY = biggerObject.speedY + (smallerObject.speedY)*ratio;
+					double newSpeed = Vectors.vectorAddition(newSpeedX, newSpeedY);
+					
+					double newAccelerationX = biggerObject.accelerationX + (smallerObject.accelerationX)*ratio;
+					double newAccelerationY = biggerObject.accelerationY + (smallerObject.accelerationY)*ratio;
+					double newAcceleration = Vectors.vectorAddition(newAccelerationX, newAccelerationY);
+					
+					biggerObject.setWeight(newWeight);
+					biggerObject.setRadius(newRadius);
+					biggerObject.setSpeedX(newSpeedX);
+					biggerObject.setSpeedY(newSpeedY);
+					biggerObject.setSpeed(newSpeed);
+					biggerObject.setAccelerationX(newAccelerationX);
+					biggerObject.setAccelerationY(newAccelerationY);
+					biggerObject.setAcceleration(newAcceleration);
+					
+					spaceObjects.remove(smallerObject);
+					
+				}
 			}
+			
 		}
-
-		this.setAccelerationX(finalAccelerationVectorX);
-		this.setAccelerationY(finalAccelerationVectorY);
 	}
 	
 	public String getName() {
@@ -172,6 +208,10 @@ public abstract class SpaceObject {
 		return this.positionY;
 	}
 
+	public double getSpeed() {
+		return this.speed;
+	}
+	
 	public double getSpeedX() {
 		return this.speedX;
 	}
@@ -198,6 +238,10 @@ public abstract class SpaceObject {
 	
 	public void setRadius(double radius) {
 		this.radius = radius;
+	}
+	
+	public void setWeight(double weight) {
+		this.weight = weight;
 	}
 	
 	public void setScaledPositionX(double new_x) {
@@ -264,6 +308,10 @@ public abstract class SpaceObject {
 		this.accelerationY = accelerationY;
 	}
 
+	public void setSpeed(double speed) {
+		this.speed = speed;
+	}
+	
 	public void setSpeedX(double speedX) {
 		this.speedX = speedX;
 	}

@@ -31,4 +31,10 @@ public class Rocket extends SpaceObject {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	@Override
+	public double findRadius() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

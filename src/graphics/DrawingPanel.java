@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 
 import main.Space;
 import objects.SpaceObject;
+import util.Vectors;
 
 public class DrawingPanel extends JPanel {
 	
@@ -72,6 +73,9 @@ public class DrawingPanel extends JPanel {
 	
 	/** jsou prave v pravem hornim rohu zobrazovany informace o planete? */
 	private boolean showingInfo = false;
+	
+	/** kolize zapnuta / vypnuta */
+	private boolean collisionOn = true;
 	
 	/**
 	 * Konstruktor nastavi panelu rozmery a dulezite instance + konstanty.
@@ -147,7 +151,7 @@ public class DrawingPanel extends JPanel {
 			for(int j = 0; j < UPDATE_CONST; j++) {
 				for(int i = 0; i < spaceObjects.size(); i++) {
 					SpaceObject object = spaceObjects.get(i);
-					object.computeAcceleration(spaceObjects, i, this.GConstant);
+					object.computeAcceleration(spaceObjects, i, this.GConstant, this.collisionOn);
 				}
 					
 				for(SpaceObject object : spaceObjects) {
@@ -158,27 +162,44 @@ public class DrawingPanel extends JPanel {
 					double currentAccelerationX = object.getAccelerationX();
 					double currentAccelerationY = object.getAccelerationY();
 					
-					object.setSpeedX(currentSpeedX + deltaT * currentAccelerationX);
-					object.setSpeedY(currentSpeedY + deltaT * currentAccelerationY);
+					double newSpeedX = currentSpeedX + deltaT * currentAccelerationX;
+					double newSpeedY = currentSpeedY + deltaT * currentAccelerationY;
+					double newSpeed = Vectors.vectorAddition(newSpeedX, newSpeedY);
 					
-					if(object.getName().equals("Planet54")) {
-						System.out.println(currentAccelerationX);
-						System.out.println(currentSpeedY);
-						System.out.println("-----------------");
-					}
+					object.setSpeedX(newSpeedX);
+					object.setSpeedY(newSpeedY);
+					object.setSpeed(newSpeed);
 					
 					double currentPositionX = object.getPositionX();
 					double currentPositionY = object.getPositionY();
 					
-					object.setPositionX(currentPositionX + deltaT * currentSpeedX);
-					object.setPositionY(currentPositionY + deltaT * currentSpeedY);
+					double newPositionX = currentPositionX + deltaT * currentSpeedX;
+					double newPositionY = currentPositionY + deltaT * currentSpeedY;
+					
+					object.setPositionX(newPositionX);
+					object.setPositionY(newPositionY);
+					
+					newSpeedX = currentSpeedX + deltaT * currentAccelerationX;
+					newSpeedY = currentSpeedY + deltaT * currentAccelerationY;
+					newSpeed = Vectors.vectorAddition(newSpeedX, newSpeedY);
 						
-					object.setSpeedX(currentSpeedX + deltaT * currentAccelerationX);
-					object.setSpeedY(currentSpeedY + deltaT * currentAccelerationY);
+					object.setSpeedX(newSpeedX);
+					object.setSpeedY(newSpeedY);
+					object.setSpeed(newSpeed);
 					
 				}
 				
-				updateDrawing(g2);
+				if(collisionOn) {	// jen pokud je zapnuta kolize
+					for(int i = 0; i < spaceObjects.size(); i++) {
+						SpaceObject object = spaceObjects.get(i);
+						object.checkForCollision(spaceObjects, i);
+						updateDrawing(g2);
+					}
+				}
+				else {	// vykreslime objekty bez kontroly kolize
+					updateDrawing(g2);
+				}
+				
 			}
 		}
 		else {	// simulace neni aktivni, vykreslime staticke objekty
@@ -229,7 +250,6 @@ public class DrawingPanel extends JPanel {
 			object.setScaledPositionY(y);
 			
 			object.draw(g2);	// vykresleni objektu
-			
 		}
 	}
 
@@ -262,40 +282,35 @@ public class DrawingPanel extends JPanel {
 	 * @param g2	graficky kontext
 	 */
 	private void drawInfo(Graphics2D g2) {
-		
-		this.currentToggled.drawHighlight(g2, Color.GREEN);	// zvyrazneni prave vybraneho objektu
-		
-		double x = this.currentToggled.getPositionX();
-		double y = this.currentToggled.getPositionY();
-		double speedX = this.currentToggled.getSpeedX();
-		double speedY = this.currentToggled.getSpeedY();
-		double accelerationX = this.currentToggled.getAccelerationX();
-		double accelerationY = this.currentToggled.getAccelerationY();
-		double radius = this.currentToggled.getRadius();
-		double weight = this.currentToggled.getWeight();
-		String name = this.currentToggled.getName();
-		
-		// formatovani na format s exponentem 10
-		String xString = String.format("%.3g", x);
-		String yString = String.format("%.3g", y);
-		String speedXString = String.format("%.3g", speedX);
-		String speedYString = String.format("%.3g", speedY);
-		String accelerationXString = String.format("%.3g", accelerationX);
-		String accelerationYString = String.format("%.3g", accelerationY);
-		String radiusString = String.format("%.3g", radius);
-		String weightString = String.format("%.3g", weight);
-		
-		g2.setFont(new Font("Monospaced", Font.PLAIN, 10));
-		g2.setColor(Color.MAGENTA);
-		g2.drawString("X position: " + xString + " km", this.getWidth() - 225, 75);
-		g2.drawString("Y position: " + yString + " km", this.getWidth() - 225, 100);
-		g2.drawString("X speed: " + speedXString + " km/h", this.getWidth() - 225, 125);
-		g2.drawString("Y speed: " + speedYString + " km/h", this.getWidth() - 225, 150);
-		g2.drawString("X acceleration: " + accelerationXString + " km/h", this.getWidth() - 225, 175);
-		g2.drawString("Y acceleration: " + accelerationYString + " km/h", this.getWidth() - 225, 200);
-		g2.drawString("radius: " + radiusString + " km", this.getWidth() - 225, 225);
-		g2.drawString("weight: " + weightString + " kg", this.getWidth() - 225, 250);
-		g2.drawString("name: " + name, this.getWidth() - 225, 275);
+		if(spaceObjects.contains(this.currentToggled)) {		// pokud kolekce stale obsahuje dany objekt
+															// mohl byt odstranen kolizi
+			
+			this.currentToggled.drawHighlight(g2, Color.GREEN);	// zvyrazneni prave vybraneho objektu
+			
+			String name = this.currentToggled.getName();
+			double x = this.currentToggled.getPositionX();
+			double y = this.currentToggled.getPositionY();
+			double speed = this.currentToggled.getSpeed();
+			double acceleration = this.currentToggled.getAcceleration();
+			double radius = this.currentToggled.getRadius();
+			double weight = this.currentToggled.getWeight();
+			
+			// formatovani na format s exponentem 10
+			String positionString = String.format("[%.3g, %.3g]", x, y);
+			String speedString = String.format("%.3g", speed);
+			String accelerationString = String.format("%.3g", acceleration);
+			String radiusString = String.format("%.3g", radius);
+			String weightString = String.format("%.3g", weight);
+			
+			g2.setFont(new Font("Monospaced", Font.PLAIN, 10));
+			g2.setColor(Color.MAGENTA);
+			g2.drawString("name: " + name, this.getWidth() - 225, 75);
+			g2.drawString("position: " + positionString + " km", this.getWidth() - 225, 100);
+			g2.drawString("speed: " + speedString + " km/h", this.getWidth() - 225, 125);
+			g2.drawString("acceleration: " + accelerationString + " km/h", this.getWidth() - 225, 150);
+			g2.drawString("radius: " + radiusString + " km", this.getWidth() - 225, 175);
+			g2.drawString("weight: " + weightString + " kg", this.getWidth() - 225, 200);
+		}
 		
 	}
 	
@@ -363,7 +378,7 @@ public class DrawingPanel extends JPanel {
 		SpaceObject xMax = spaceObjects.get(0);
 		
 		for(int i = 1; i < spaceObjects.size(); i++) {
-			if(spaceObjects.get(i).getPositionX() + spaceObjects.get(i).getRadius()*2 > xMax.getPositionX()) {
+			if(spaceObjects.get(i).getPositionX() + spaceObjects.get(i).getRadius()*2 > xMax.getPositionX() + xMax.getRadius()*2) {
 				xMax = spaceObjects.get(i);
 			}
 		}
@@ -380,28 +395,12 @@ public class DrawingPanel extends JPanel {
 		SpaceObject yMax = spaceObjects.get(0);
 		
 		for(int i = 1; i < spaceObjects.size(); i++) {
-			if(spaceObjects.get(i).getPositionY() + spaceObjects.get(i).getRadius()*2 > yMax.getPositionY()) {
+			if(spaceObjects.get(i).getPositionY() + spaceObjects.get(i).getRadius()*2 > yMax.getPositionY() + yMax.getRadius()*2) {
 				yMax = spaceObjects.get(i);
 			}
 		}
 		
 		return yMax;
-	}
-	
-	/**
-	 * Metoda najde objekt s nejvetsim polomerem.
-	 * @return		objekt s nejvetsim polomerem
-	 */
-	private SpaceObject findMaxRadiusSpaceObject() {
-		SpaceObject rMax = spaceObjects.get(0);
-		
-		for(int i = 1; i < spaceObjects.size(); i++) {
-			if(spaceObjects.get(i).getRadius() > rMax.getRadius()) {
-				rMax = spaceObjects.get(i);
-			}
-		}
-		
-		return rMax;
 	}
 	
 }

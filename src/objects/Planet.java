@@ -32,7 +32,7 @@ public class Planet extends SpaceObject {
 	 * Polomer je vypocitany ze vzorce objemu koule 4/3 * PI * r^3.
 	 * @return	polomer planety
 	 */
-	private double findRadius() {
+	public double findRadius() {
 		return Math.cbrt((3*weight)/(4*Math.PI));
 	}
 
