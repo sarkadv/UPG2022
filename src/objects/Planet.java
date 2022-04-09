@@ -38,6 +38,7 @@ public class Planet extends SpaceObject {
 
 	/**
 	 * Metoda vykresli planetu na jejich souradnicich.
+	 * @param g2	graficky kontext
 	 */
 	public void draw(Graphics2D g2) {
 		this.drawing =  new Ellipse2D.Double(this.scaledPositionX, this.scaledPositionY, 2*this.scaledRadius, 2*this.scaledRadius);
@@ -46,7 +47,9 @@ public class Planet extends SpaceObject {
 	}
 	
 	/**
-	 * Metoda vykresli obrys (zvyrazneni) planety
+	 * Metoda vykresli obrys (zvyrazneni) planety.
+	 * @param g2		graficky kontext
+	 * @param color		barva zvyrazneni planbety
 	 */
 	public void drawHighlight(Graphics2D g2, Color color) {
 		this.drawing =  new Ellipse2D.Double(this.scaledPositionX, this.scaledPositionY, 2*this.scaledRadius, 2*this.scaledRadius);

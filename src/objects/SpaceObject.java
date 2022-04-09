@@ -3,7 +3,6 @@ package objects;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
-import java.awt.geom.Ellipse2D;
 import java.util.List;
 import util.Vectors;
 import graphics.ColorPicker;
@@ -94,28 +93,63 @@ public abstract class SpaceObject {
 		
 	}
 	
+	/**
+	 * Metoda vykresli objekt na jeho souradnicich.
+	 * @param g2	graficky kontext
+	 */
 	public abstract void draw(Graphics2D g2);
+	
+	/**
+	 * Metoda vykresli obrys (zvyrazneni) objektu.
+	 * @param g2		graficky kontext
+	 * @param color		barva zvyrazneni objektu
+	 */
 	public abstract void drawHighlight(Graphics2D g2, Color color);
+	
+	/**
+	 * Priblizny hit-test pro objekt.
+	 * Tolerance je tim vetsi, cim mensi je objekt. Pro velke objekty s blizi nule.
+	 * @param g2	graficky kontext
+	 * @param x		x-souradnice kliku
+	 * @param y		y-souradnice kliku
+	 * @return		vysledek hit-testu
+	 */
 	public abstract boolean approximateHitTest(double x, double y);
+	
+	/**
+	 * Polomer je vypocitany z hmotnosti objektu.
+	 * Hustota objektu je 1.
+	 * @return	polomer objektu
+	 */
 	public abstract double findRadius();
 	
+	/**
+	 * Metoda pomoci Newtonovy pohybove rovnice spocita zrychleni jednoho objektu, 
+	 * ktere je ovlivnene vsemi ostatnimi objekty.
+	 * @param spaceObjects		kolekce vsech objektu
+	 * @param i					index zkoumaneho objektu
+	 * @param GConstant			gravitacni konstanta
+	 * @param collision			zapnuta kolize - true / false
+	 */
 	public void computeAcceleration(List<SpaceObject> spaceObjects, int i, double GConstant, boolean collision) {
-		double forceXSum = 0;
-		double forceYSum = 0;
+		double forceXSum = 0;	// celkova sila v ose x
+		double forceYSum = 0;	// celkova sila v ose y
 		
-		SpaceObject objectI = this;
+		SpaceObject objectI = this;		// zkoumany objekt
 		
 		for(int j = 0; j < spaceObjects.size(); j++) {
-			SpaceObject objectJ = spaceObjects.get(j);
+			SpaceObject objectJ = spaceObjects.get(j);	// druhy objekt
 			
-			if(i != j) {
+			if(i != j) {	// indexy objektu se nerovnaji - nejde o stejny objekt
 				double distanceX = objectJ.positionX - objectI.positionX;
 				double distanceY = objectJ.positionY - objectI.positionY;
 				
 				double distanceBetweenObjects = Math.sqrt((distanceX * distanceX) + (distanceY * distanceY));
 				
-				if(collision == false) {
+				if(collision == false) {		// pokud je kolize vypnuta
 					if (distanceBetweenObjects < objectJ.radius + objectI.radius) {
+						// vzdalenost mezi objekty musi byt alespon soucet jejich polomeru
+						// jinak dostavame prilis velke sily (deleni malym cislem) a objekty "vystreluji"
 						distanceBetweenObjects = objectJ.radius + objectI.radius;
 					}
 				}
@@ -137,23 +171,30 @@ public abstract class SpaceObject {
 		
 		this.setAccelerationX(accelerationX);
 		this.setAccelerationY(accelerationY);
-		this.setAcceleration(Vectors.vectorAddition(accelerationX, accelerationY));
+		this.setAcceleration(Vectors.vectorAddition(accelerationX, accelerationY));	// vysledne slozene zrychleni
 		
 	}
 	
+	/**
+	 * Metoda zkontruluje, zda zkoumany objekt nekoliduje s nekterym z ostatnich.
+	 * Pokud ano, provede kolizi a prepocita nove vlastnosti spojenych objektu.
+	 * @param spaceObjects		kolekce vsech objektu
+	 * @param i					index zkoumaneho objektu
+	 */
 	public void checkForCollision(List<SpaceObject> spaceObjects, int i) {
-		SpaceObject objectI = this;
+		SpaceObject objectI = this;		// zkoumany objekt
 		
 		for(int j = 0; j < spaceObjects.size(); j++) {
-			SpaceObject objectJ = spaceObjects.get(j);
+			SpaceObject objectJ = spaceObjects.get(j);	// druhy objekt
 			
-			if(i != j) {
+			if(i != j) {	// indexy objektu se nerovnaji - nejde o stejny objekt
 				double distanceX = objectJ.positionX - objectI.positionX;
 				double distanceY = objectJ.positionY - objectI.positionY;
 				
 				double distanceBetweenObjects = Math.sqrt((distanceX * distanceX) + (distanceY * distanceY));
 				
-				if(distanceBetweenObjects <= objectI.radius + objectJ.radius) {
+				if(distanceBetweenObjects <= objectI.radius + objectJ.radius) {	// doslo ke kolizi
+					// najdeme vetsi a mensi ze dvou objektu
 					SpaceObject biggerObject = objectI;
 					SpaceObject smallerObject = objectJ;
 					
@@ -165,9 +206,10 @@ public abstract class SpaceObject {
 					double ratio = smallerObject.weight / biggerObject.weight;	// pomer vahy mensiho objektu ku vetsimu
 					
 					double newWeight = biggerObject.weight + smallerObject.weight;
-					double newRadius = biggerObject.findRadius();
+					double newRadius = biggerObject.findRadius();	// aktualizace polomeru
 					
-					double newSpeedX = biggerObject.speedX + (smallerObject.speedX)*ratio;
+					double newSpeedX = biggerObject.speedX + (smallerObject.speedX)*ratio;	// mensi objekt nema na rychlost takovy vliv
+																							// -> vynasobeni promennou ratio
 					double newSpeedY = biggerObject.speedY + (smallerObject.speedY)*ratio;
 					double newSpeed = Vectors.vectorAddition(newSpeedX, newSpeedY);
 					
@@ -184,7 +226,7 @@ public abstract class SpaceObject {
 					biggerObject.setAccelerationY(newAccelerationY);
 					biggerObject.setAcceleration(newAcceleration);
 					
-					spaceObjects.remove(smallerObject);
+					spaceObjects.remove(smallerObject);	// odstraneni mensiho objektu z kolekce
 					
 				}
 			}
@@ -252,6 +294,12 @@ public abstract class SpaceObject {
 		this.scaledPositionY = new_y;
 	}
 	
+	/**
+	 * Metoda nastavi scaleovany polomer objektu.
+	 * Pokud je polomer mensi nez povoleny minimalni polomer, je nastaven povoleny minimalni polomer.
+	 * Pokud je polomer vetsi nez povoleny maximalni polomer, je nastaven povoleny maximalni polomer.
+	 * @param radius		novy polomer
+	 */
 	public void setScaledRadius(double radius) {
 		if(radius < MIN_RADIUS) {
 			this.scaledRadius = MIN_RADIUS;

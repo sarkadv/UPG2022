@@ -4,13 +4,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import javax.swing.JPanel;
-
 import main.Space;
 import objects.SpaceObject;
 import util.Vectors;
@@ -136,13 +131,16 @@ public class DrawingPanel extends JPanel {
 		
 		g2.setFont(new Font("Monospaced", Font.PLAIN, 10));
 		g2.setColor(Color.MAGENTA);
-		g2.drawString("actual Time: " + actualTimeString + " s", this.getWidth() - 225, 25);
-		g2.drawString("simulation Time: " + simulationTimeString + " s", this.getWidth() - 225, 50); 
+		g2.drawString("simulation time: " + simulationTimeString + " s", this.getWidth() - 225, 25);
+		g2.drawString("actual Time: " + actualTimeString + " s", this.getWidth() - 225, 50); 
+		g2.drawString("_____________________________", this.getWidth() - 225, 75);
 	}
 	
 	/**
 	 * Metoda prepocita zrychleni, rychlosti, pozice celeho systemu.
-	 * @param t	 ubehly cas od posledniho updatu v ms
+	 * Zaroven zkontroluje kolize, pokud jsou zapnute.
+	 * @param t		 ubehly cas od posledniho updatu v ms
+	 * @param g2	 graficky kontext
 	 */
 	private void updateSystem(double t, Graphics2D g2) {
 		t = (t/1000.0) * this.TStep;	// prevod casu ms -> s, pote prevod na cas simulace
@@ -304,12 +302,12 @@ public class DrawingPanel extends JPanel {
 			
 			g2.setFont(new Font("Monospaced", Font.PLAIN, 10));
 			g2.setColor(Color.MAGENTA);
-			g2.drawString("name: " + name, this.getWidth() - 225, 75);
-			g2.drawString("position: " + positionString + " km", this.getWidth() - 225, 100);
-			g2.drawString("speed: " + speedString + " km/h", this.getWidth() - 225, 125);
-			g2.drawString("acceleration: " + accelerationString + " km/h", this.getWidth() - 225, 150);
-			g2.drawString("radius: " + radiusString + " km", this.getWidth() - 225, 175);
-			g2.drawString("weight: " + weightString + " kg", this.getWidth() - 225, 200);
+			g2.drawString("name: " + name, this.getWidth() - 225, 100);
+			g2.drawString("position: " + positionString + " km", this.getWidth() - 225, 125);
+			g2.drawString("speed: " + speedString + " km/h", this.getWidth() - 225, 150);
+			g2.drawString("acceleration: " + accelerationString + " km/h", this.getWidth() - 225, 175);
+			g2.drawString("radius: " + radiusString + " km", this.getWidth() - 225, 200);
+			g2.drawString("weight: " + weightString + " kg", this.getWidth() - 225, 225);
 		}
 		
 	}
