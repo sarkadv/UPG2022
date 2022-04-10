@@ -211,9 +211,9 @@ public abstract class SpaceObject {
 					double newPositionX = (biggerObject.positionX + smallerObject.positionX) / 2.0;	// nova pozice je aritmeticky prumer pozic
 					double newPositionY = (biggerObject.positionY + smallerObject.positionY) / 2.0;
 					
-					double newSpeedX = biggerObject.speedX + (smallerObject.speedX)*ratio;	// mensi objekt nema na rychlost takovy vliv
+					double newSpeedX = biggerObject.speedX + (smallerObject.speedX*ratio);	// mensi objekt nema na rychlost takovy vliv
 																							// -> vynasobeni promennou ratio
-					double newSpeedY = biggerObject.speedY + (smallerObject.speedY)*ratio;
+					double newSpeedY = biggerObject.speedY + (smallerObject.speedY*ratio);
 					double newSpeed = Vectors.vectorAddition(newSpeedX, newSpeedY);
 					
 					double newAccelerationX = biggerObject.accelerationX + (smallerObject.accelerationX)*ratio;
