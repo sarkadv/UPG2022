@@ -191,20 +191,11 @@ public class DrawingPanel extends JPanel {
 					for(int i = 0; i < spaceObjects.size(); i++) {
 						SpaceObject object = spaceObjects.get(i);
 						object.checkForCollision(spaceObjects, i);
-						updateDrawing(g2);
 					}
-				}
-				else {	// vykreslime objekty bez kontroly kolize
-					updateDrawing(g2);
-				}
-				
+				}	
 			}
 		}
-		else {	// simulace neni aktivni, vykreslime staticke objekty
-			for(int j = 0; j < UPDATE_CONST; j++) {
-				updateDrawing(g2);
-			}
-		}
+		updateDrawing(g2);
 
 	}
 	
@@ -236,11 +227,11 @@ public class DrawingPanel extends JPanel {
 		
 		scale = Math.min(scale_x, scale_y);		// scale podle mensiho z pomeru
 		
-		SpaceObject.MAX_RADIUS = Math.min(this.getWidth()/2, this.getHeight()/2);	// nejvyssi mozny polomer objektu podle velikosti okna
+		SpaceObject.MAX_RADIUS = Math.min(window_width/2, window_height/2);	// nejvyssi mozny polomer objektu podle velikosti okna
 		
 		for(SpaceObject object : spaceObjects) {		// nalezeni spravnych pozic po scalu
-			double x = (object.getPositionX() - x_min)*scale + this.getWidth()/2 - (world_width*scale)/2;
-			double y = (object.getPositionY() - y_min)*scale + this.getHeight()/2 - (world_height*scale)/2;
+			double x = (object.getPositionX() - x_min)*scale + window_width/2 - (world_width*scale)/2;
+			double y = (object.getPositionY() - y_min)*scale + window_height/2 - (world_height*scale)/2;
 			double radius = object.getRadius()*scale;
 			
 			object.setScaledRadius(radius);	

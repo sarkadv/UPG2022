@@ -49,7 +49,7 @@ public abstract class SpaceObject {
 	protected double radius;
 	
 	/** minimalni polomer po scaleovani objektu */
-	public static final double MIN_RADIUS = 2;	
+	public static final double MIN_RADIUS = 1.5;	
 	
 	/** maximalni polomer po scaleovani objektu */
 	public static double MAX_RADIUS;
@@ -67,7 +67,7 @@ public abstract class SpaceObject {
 	protected final Color color;
 	
 	/** graficka realizace objektu */
-	protected Shape drawing;	
+	protected Shape shape;	
 
 	/**
 	 * Konstruktor pro vytvoreni abstraktni casti vesmirneho objektu.
@@ -94,7 +94,7 @@ public abstract class SpaceObject {
 	}
 	
 	/**
-	 * Metoda vykresli objekt na jeho souradnicich.
+	 * Metoda vykresli objekt na jeho souradnicich prizpusobenych oknu.
 	 * @param g2	graficky kontext
 	 */
 	public abstract void draw(Graphics2D g2);
@@ -177,7 +177,7 @@ public abstract class SpaceObject {
 	
 	/**
 	 * Metoda zkontruluje, zda zkoumany objekt nekoliduje s nekterym z ostatnich.
-	 * Pokud ano, provede kolizi a prepocita nove vlastnosti spojenych objektu.
+	 * Pokud ano, provede kolizi a prepocita nove vlastnosti noveho objektu.
 	 * @param spaceObjects		kolekce vsech objektu
 	 * @param i					index zkoumaneho objektu
 	 */
@@ -208,6 +208,9 @@ public abstract class SpaceObject {
 					double newWeight = biggerObject.weight + smallerObject.weight;
 					double newRadius = biggerObject.findRadius();	// aktualizace polomeru
 					
+					double newPositionX = (biggerObject.positionX + smallerObject.positionX) / 2.0;	// nova pozice je aritmeticky prumer pozic
+					double newPositionY = (biggerObject.positionY + smallerObject.positionY) / 2.0;
+					
 					double newSpeedX = biggerObject.speedX + (smallerObject.speedX)*ratio;	// mensi objekt nema na rychlost takovy vliv
 																							// -> vynasobeni promennou ratio
 					double newSpeedY = biggerObject.speedY + (smallerObject.speedY)*ratio;
@@ -219,6 +222,8 @@ public abstract class SpaceObject {
 					
 					biggerObject.setWeight(newWeight);
 					biggerObject.setRadius(newRadius);
+					biggerObject.setPositionX(newPositionX);
+					biggerObject.setPositionY(newPositionY);
 					biggerObject.setSpeedX(newSpeedX);
 					biggerObject.setSpeedY(newSpeedY);
 					biggerObject.setSpeed(newSpeed);
@@ -324,12 +329,12 @@ public abstract class SpaceObject {
 		return this.scaledRadius;
 	}
 	
-	public void setDrawing(Shape drawing) {
-		this.drawing = drawing;
+	public void setShape(Shape shape) {
+		this.shape = shape;
 	}
 	
-	public Shape getDrawing() {
-		return this.drawing;
+	public Shape getShape() {
+		return this.shape;
 	}
 	
 	public double getAcceleration() {

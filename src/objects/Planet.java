@@ -25,7 +25,7 @@ public class Planet extends SpaceObject {
 		
 		super(name, typ, positionX, positionY, speedX, speedY, weight);
 		this.radius = findRadius();
-		this.drawing = new Ellipse2D.Double(this.scaledPositionX, this.scaledPositionY, 2*this.scaledRadius, 2*this.scaledRadius);
+		this.shape = new Ellipse2D.Double(this.scaledPositionX, this.scaledPositionY, 2*this.scaledRadius, 2*this.scaledRadius);
 	}
 	
 	/**
@@ -41,7 +41,7 @@ public class Planet extends SpaceObject {
 	 * @param g2	graficky kontext
 	 */
 	public void draw(Graphics2D g2) {
-		this.drawing =  new Ellipse2D.Double(this.scaledPositionX, this.scaledPositionY, 2*this.scaledRadius, 2*this.scaledRadius);
+		this.shape =  new Ellipse2D.Double(this.scaledPositionX, this.scaledPositionY, 2*this.scaledRadius, 2*this.scaledRadius);
 		g2.setColor(this.color);
 		g2.fill(new Ellipse2D.Double(this.scaledPositionX, this.scaledPositionY, 2*this.scaledRadius, 2*this.scaledRadius));
 	}
@@ -52,7 +52,7 @@ public class Planet extends SpaceObject {
 	 * @param color		barva zvyrazneni planbety
 	 */
 	public void drawHighlight(Graphics2D g2, Color color) {
-		this.drawing =  new Ellipse2D.Double(this.scaledPositionX, this.scaledPositionY, 2*this.scaledRadius, 2*this.scaledRadius);
+		this.shape =  new Ellipse2D.Double(this.scaledPositionX, this.scaledPositionY, 2*this.scaledRadius, 2*this.scaledRadius);
 		g2.setColor(color);
 		g2.setStroke(new BasicStroke(4));
 		g2.draw(new Ellipse2D.Double(this.scaledPositionX, this.scaledPositionY, 2*this.scaledRadius, 2*this.scaledRadius));
