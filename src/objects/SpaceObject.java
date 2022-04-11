@@ -206,6 +206,7 @@ public abstract class SpaceObject {
 					double ratio = smallerObject.weight / biggerObject.weight;	// pomer vahy mensiho objektu ku vetsimu
 					
 					double newWeight = biggerObject.weight + smallerObject.weight;
+					biggerObject.setWeight(newWeight);
 					double newRadius = biggerObject.findRadius();	// aktualizace polomeru
 					
 					double newPositionX = (biggerObject.positionX + smallerObject.positionX) / 2.0;	// nova pozice je aritmeticky prumer pozic
@@ -220,7 +221,6 @@ public abstract class SpaceObject {
 					double newAccelerationY = biggerObject.accelerationY + (smallerObject.accelerationY)*ratio;
 					double newAcceleration = Vectors.vectorAddition(newAccelerationX, newAccelerationY);
 					
-					biggerObject.setWeight(newWeight);
 					biggerObject.setRadius(newRadius);
 					biggerObject.setPositionX(newPositionX);
 					biggerObject.setPositionY(newPositionY);
