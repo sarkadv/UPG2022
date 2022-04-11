@@ -1,11 +1,8 @@
-package util;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import objects.Planet;
-import objects.SpaceObject;
 
 /**
  * Trida pro nacitani ze souboru.

@@ -1,10 +1,5 @@
-package main;
 import java.io.IOException;
 import java.util.List;
-
-import graphics.WindowInitializer;
-import objects.SpaceObject;
-import util.FileLoader;
 
 /**
  * Hlavni trida, ktera nacte informace ze souboru a vytvori odpovidajici instanci vesmiru.

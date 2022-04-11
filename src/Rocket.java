@@ -1,14 +1,12 @@
-package objects;
-
 import java.awt.Color;
 import java.awt.Graphics2D;
 
 /**
- * Trida v budoucnu reprezentujici kometu.
+ * Trida v budoucnu reprezentujici raketu.
  */
-public class Comet extends SpaceObject {
+public class Rocket extends SpaceObject {
 	
-	public Comet(String name, String typ, double positionX, double positionY, 
+	public Rocket(String name, String typ, double positionX, double positionY, 
 			double speedX, double speedY, double weight) {
 		
 		super(name, typ, positionX, positionY, speedX, speedY, weight);
@@ -37,5 +35,4 @@ public class Comet extends SpaceObject {
 		// TODO Auto-generated method stub
 		return 0;
 	}
-	
 }

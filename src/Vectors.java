@@ -1,4 +1,3 @@
-package util;
 
 /**
  * Trida pro pocitani s vektory.

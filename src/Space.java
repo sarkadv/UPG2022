@@ -1,7 +1,4 @@
-package main;
 import java.util.List;
-
-import objects.SpaceObject;
 
 /**
  * Trida reprezentujici cely vesmir.

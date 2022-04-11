@@ -1,4 +1,3 @@
-package graphics;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.KeyEventDispatcher;
@@ -8,10 +7,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import javax.swing.JFrame;
 
-import main.Space;
 
 /**
  * Trida pro vytvoreni a zakladni nastaveni okna.

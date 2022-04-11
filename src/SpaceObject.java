@@ -1,11 +1,7 @@
-package objects;
-
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.util.List;
-import util.Vectors;
-import graphics.ColorPicker;
 
 /**
  * Abstraktni trida predstavujici vesmirny objekt.
