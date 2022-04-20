@@ -1,6 +1,7 @@
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -64,6 +65,14 @@ public abstract class SpaceObject {
 	
 	/** graficka realizace objektu */
 	protected Shape shape;	
+	
+	protected List<Double> trajectoryX;
+	
+	protected List<Double> trajectoryY;
+	
+	protected List<Double> scaledTrajectoryX;
+	
+	protected List<Double> scaledTrajectoryY;
 
 	/**
 	 * Konstruktor pro vytvoreni abstraktni casti vesmirneho objektu.
@@ -86,6 +95,10 @@ public abstract class SpaceObject {
 		this.speedY = speedY;
 		this.weight = weight;
 		this.color = ColorPicker.randomColor();		// vyber nahodne barvy pro objekt
+		this.trajectoryX = new ArrayList<Double>();
+		this.trajectoryY = new ArrayList<Double>();
+		this.scaledTrajectoryX = new ArrayList<Double>();
+		this.scaledTrajectoryY = new ArrayList<Double>();
 		
 	}
 	
@@ -118,6 +131,8 @@ public abstract class SpaceObject {
 	 * @return	polomer objektu
 	 */
 	public abstract double findRadius();
+	
+	public abstract void drawTrajectory(Graphics2D g2, int trajectoryLength);
 	
 	/**
 	 * Metoda pomoci Newtonovy pohybove rovnice spocita zrychleni jednoho objektu, 
@@ -227,6 +242,16 @@ public abstract class SpaceObject {
 					biggerObject.setAccelerationY(newAccelerationY);
 					biggerObject.setAcceleration(newAcceleration);
 					
+					for(int k = 0; k < biggerObject.getTrajectoryX().size(); k++) {
+						double newTrajectoryPoint = (biggerObject.getTrajectoryX().get(k) + smallerObject.getTrajectoryX().get(k))/2.0;
+						biggerObject.getTrajectoryX().set(k, newTrajectoryPoint);
+					}
+					
+					for(int k = 0; k < biggerObject.getTrajectoryY().size(); k++) {
+						double newTrajectoryPoint = (biggerObject.getTrajectoryY().get(k) + smallerObject.getTrajectoryY().get(k))/2.0;
+						biggerObject.getTrajectoryY().set(k, newTrajectoryPoint);
+					}
+					
 					spaceObjects.remove(smallerObject);	// odstraneni mensiho objektu z kolekce
 					
 				}
@@ -234,7 +259,7 @@ public abstract class SpaceObject {
 			
 		}
 	}
-	
+
 	public String getName() {
 		return this.name;
 	}
@@ -367,6 +392,38 @@ public abstract class SpaceObject {
 
 	public void setSpeedY(double speedY) {
 		this.speedY = speedY;
+	}
+
+	public List<Double> getTrajectoryX() {
+		return trajectoryX;
+	}
+
+	public void setTrajectoryX(List<Double> scaledTrajectoryX) {
+		this.trajectoryX = scaledTrajectoryX;
+	}
+
+	public List<Double> getTrajectoryY() {
+		return trajectoryY;
+	}
+
+	public void setTrajectoryY(List<Double> scaledTrajectoryY) {
+		this.trajectoryY = scaledTrajectoryY;
+	}
+
+	public List<Double> getScaledTrajectoryX() {
+		return scaledTrajectoryX;
+	}
+
+	public void setScaledTrajectoryX(List<Double> scaledTrajectoryX) {
+		this.scaledTrajectoryX = scaledTrajectoryX;
+	}
+
+	public List<Double> getScaledTrajectoryY() {
+		return scaledTrajectoryY;
+	}
+
+	public void setScaledTrajectoryY(List<Double> scaledTrajectoryY) {
+		this.scaledTrajectoryY = scaledTrajectoryY;
 	}
 
 }

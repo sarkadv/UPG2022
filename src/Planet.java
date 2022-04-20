@@ -79,4 +79,17 @@ public class Planet extends SpaceObject {
 			return false;
 		}
 	}
+
+	@Override
+	public void drawTrajectory(Graphics2D g2, int trajectoryLength) {
+		
+		for(int i = 0; i < this.scaledTrajectoryX.size(); i++) {
+			Color trajectoryPointColor = new Color(this.color.getRed(), this.color.getGreen(), this.color.getBlue(), (255/trajectoryLength/4)*(i+1));
+			g2.setColor(trajectoryPointColor);
+			
+			Ellipse2D trajectoryPoint = new Ellipse2D.Double(this.scaledTrajectoryX.get(i), this.scaledTrajectoryY.get(i), 
+					((2*this.scaledRadius)/trajectoryLength)*(i+1), ((2*this.scaledRadius)/trajectoryLength)*(i+1));
+			g2.fill(trajectoryPoint);
+		}
+	}
 }

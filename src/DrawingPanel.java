@@ -3,6 +3,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JPanel;
 
@@ -68,6 +69,8 @@ public class DrawingPanel extends JPanel {
 	/** kolize zapnuta / vypnuta */
 	private boolean collisionOn = true;
 	
+	private int trajectoryLength = 60;
+	
 	/**
 	 * Konstruktor nastavi panelu rozmery a dulezite instance + konstanty.
 	 * @param space		instance vesmiru
@@ -128,7 +131,7 @@ public class DrawingPanel extends JPanel {
 		g2.setFont(new Font("Monospaced", Font.PLAIN, 10));
 		g2.setColor(Color.MAGENTA);
 		g2.drawString("simulation time: " + simulationTimeString + " s", this.getWidth() - 225, 25);
-		g2.drawString("actual Time: " + actualTimeString + " s", this.getWidth() - 225, 50); 
+		g2.drawString("actual time: " + actualTimeString + " s", this.getWidth() - 225, 50); 
 		g2.drawString("_____________________________", this.getWidth() - 225, 75);
 	}
 	
@@ -234,7 +237,36 @@ public class DrawingPanel extends JPanel {
 			object.setScaledPositionX(x);
 			object.setScaledPositionY(y);
 			
+			if(simulationActive) {
+				if(object.getTrajectoryX().size() > this.trajectoryLength) {
+					object.getTrajectoryX().remove(0);
+					object.getTrajectoryY().remove(0);
+				}
+
+				object.getTrajectoryX().add(object.getPositionX() );
+				object.getTrajectoryY().add(object.getPositionY());
+			}
+			
+			List<Double> scaledTrajectoryX = new ArrayList<Double>();
+			List<Double> scaledTrajectoryY = new ArrayList<Double>();
+			
+			for(int i = 0; i < object.getTrajectoryX().size(); i++) {
+				double trajectoryPointX = (object.getTrajectoryX().get(i) - x_min)*scale + window_width/2 - (world_width*scale)/2;
+				scaledTrajectoryX.add(trajectoryPointX);
+			}
+			
+			object.setScaledTrajectoryX(scaledTrajectoryX);
+			
+			for(int i = 0; i < object.getTrajectoryY().size(); i++) {
+				double trajectoryPointY = (object.getTrajectoryY().get(i) - y_min)*scale + window_height/2 - (world_height*scale)/2;
+				scaledTrajectoryY.add(trajectoryPointY);
+			}
+			
+			object.setScaledTrajectoryY(scaledTrajectoryY);
+			
+			object.drawTrajectory(g2, this.trajectoryLength);
 			object.draw(g2);	// vykresleni objektu
+			
 		}
 	}
 

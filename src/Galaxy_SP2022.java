@@ -16,7 +16,8 @@ public class Galaxy_SP2022 {
 		try {
 			firstLine = FileLoader.loadFirstLine(path);		// nacteni prvni radky souboru
 			spaceObjects = FileLoader.loadSpaceObjects(path);	// nacteni ostatnich radek s vesmirnymi objekty
-		} catch (IOException e) {
+		} 
+		catch (IOException e) {
 			System.out.println(e.getMessage());
 		}
 		

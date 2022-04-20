@@ -35,5 +35,11 @@ public class Comet extends SpaceObject {
 		// TODO Auto-generated method stub
 		return 0;
 	}
+
+	@Override
+	public void drawTrajectory(Graphics2D g2, int trajectoryLength) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }
