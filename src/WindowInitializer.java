@@ -32,12 +32,20 @@ public class WindowInitializer {
 		okno.setLocationRelativeTo(null);
 		okno.setVisible(true);		
 		
-		Timer tm = new Timer();	
-		tm.schedule(new TimerTask() {
+		Timer paintTimer = new Timer();	
+		paintTimer.schedule(new TimerTask() {
 			public void run() {
 				panel.repaint();	// panel se prekresli kazdych 17 ms
 			}
 		}, 0, 17);
+		
+		Timer chartTimer = new Timer();	
+		chartTimer.schedule(new TimerTask() {
+			public void run() {
+				panel.collectData();
+				panel.updateChart();
+			}
+		}, 0, 100);
 		
 		panel.addMouseListener(new MouseListener() {
 			
@@ -56,6 +64,7 @@ public class WindowInitializer {
 			public void mousePressed(MouseEvent e) {
 				if(panel.isObjectClicked(e.getX(), e.getY())) {	
 					panel.showInfo();
+					panel.showChart();
 				}
 				else {
 					panel.stopShowingInfo();

@@ -71,6 +71,12 @@ public class DrawingPanel extends JPanel {
 	
 	private int trajectoryLength = 60;
 	
+	private final int DATA_COLLECT_PER_S = 10;
+	
+	private final int SECONDS_COLLECTED = 30;
+	
+	private ChartWindow chartWindow;
+	
 	/**
 	 * Konstruktor nastavi panelu rozmery a dulezite instance + konstanty.
 	 * @param space		instance vesmiru
@@ -238,13 +244,16 @@ public class DrawingPanel extends JPanel {
 			object.setScaledPositionY(y);
 			
 			if(simulationActive) {
-				if(object.getTrajectoryX().size() > this.trajectoryLength) {
-					object.getTrajectoryX().remove(0);
-					object.getTrajectoryY().remove(0);
+				if(object.getSpeed() != 0) {
+					if(object.getTrajectoryX().size() > this.trajectoryLength) {
+						object.getTrajectoryX().remove(0);
+						object.getTrajectoryY().remove(0);
+					}
+
+					object.getTrajectoryX().add(object.getPositionX() );
+					object.getTrajectoryY().add(object.getPositionY());
 				}
 
-				object.getTrajectoryX().add(object.getPositionX() );
-				object.getTrajectoryY().add(object.getPositionY());
 			}
 			
 			List<Double> scaledTrajectoryX = new ArrayList<Double>();
@@ -418,6 +427,27 @@ public class DrawingPanel extends JPanel {
 		}
 		
 		return yMax;
+	}
+	
+	public void collectData() {
+		if(simulationActive) {
+			for (SpaceObject object : spaceObjects) {
+
+				object.getSpeedData().add(object.getSpeed());
+			}
+		}
+
+	}
+	
+	public void showChart() {
+		chartWindow = new ChartWindow(this.currentToggled, this.DATA_COLLECT_PER_S);
+	}
+	
+	public void updateChart() {
+		if(chartWindow != null) {
+			chartWindow.updateChart();
+		}
+		
 	}
 	
 }

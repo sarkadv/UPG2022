@@ -73,6 +73,8 @@ public abstract class SpaceObject {
 	protected List<Double> scaledTrajectoryX;
 	
 	protected List<Double> scaledTrajectoryY;
+	
+	protected List<Double> speedData;
 
 	/**
 	 * Konstruktor pro vytvoreni abstraktni casti vesmirneho objektu.
@@ -99,6 +101,7 @@ public abstract class SpaceObject {
 		this.trajectoryY = new ArrayList<Double>();
 		this.scaledTrajectoryX = new ArrayList<Double>();
 		this.scaledTrajectoryY = new ArrayList<Double>();
+		this.speedData = new ArrayList<Double>();
 		
 	}
 	
@@ -243,13 +246,20 @@ public abstract class SpaceObject {
 					biggerObject.setAcceleration(newAcceleration);
 					
 					for(int k = 0; k < biggerObject.getTrajectoryX().size(); k++) {
-						double newTrajectoryPoint = (biggerObject.getTrajectoryX().get(k) + smallerObject.getTrajectoryX().get(k))/2.0;
-						biggerObject.getTrajectoryX().set(k, newTrajectoryPoint);
+						if(smallerObject.getTrajectoryX().size() > 0)
+						{
+							double newTrajectoryPoint = (biggerObject.getTrajectoryX().get(k) + smallerObject.getTrajectoryX().get(k))/2.0;
+							biggerObject.getTrajectoryX().set(k, newTrajectoryPoint);
+						}
+						
 					}
 					
 					for(int k = 0; k < biggerObject.getTrajectoryY().size(); k++) {
-						double newTrajectoryPoint = (biggerObject.getTrajectoryY().get(k) + smallerObject.getTrajectoryY().get(k))/2.0;
-						biggerObject.getTrajectoryY().set(k, newTrajectoryPoint);
+						if(smallerObject.getTrajectoryY().size() > 0) {
+							double newTrajectoryPoint = (biggerObject.getTrajectoryY().get(k) + smallerObject.getTrajectoryY().get(k))/2.0;
+							biggerObject.getTrajectoryY().set(k, newTrajectoryPoint);
+						}
+						
 					}
 					
 					spaceObjects.remove(smallerObject);	// odstraneni mensiho objektu z kolekce
@@ -424,6 +434,10 @@ public abstract class SpaceObject {
 
 	public void setScaledTrajectoryY(List<Double> scaledTrajectoryY) {
 		this.scaledTrajectoryY = scaledTrajectoryY;
+	}
+
+	public List<Double> getSpeedData() {
+		return speedData;
 	}
 
 }
