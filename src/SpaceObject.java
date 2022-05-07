@@ -75,6 +75,8 @@ public abstract class SpaceObject {
 	protected List<Double> scaledTrajectoryY;
 	
 	protected List<Double> speedData;
+	
+	protected int speedDataCollected;
 
 	/**
 	 * Konstruktor pro vytvoreni abstraktni casti vesmirneho objektu.
@@ -101,7 +103,7 @@ public abstract class SpaceObject {
 		this.trajectoryY = new ArrayList<Double>();
 		this.scaledTrajectoryX = new ArrayList<Double>();
 		this.scaledTrajectoryY = new ArrayList<Double>();
-		this.speedData = new ArrayList<Double>();
+		this.speedData = new ArrayList<Double>(61);
 		
 	}
 	

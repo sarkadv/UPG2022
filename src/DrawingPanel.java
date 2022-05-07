@@ -73,8 +73,6 @@ public class DrawingPanel extends JPanel {
 	
 	private final int DATA_COLLECT_PER_S = 10;
 	
-	private final int SECONDS_COLLECTED = 30;
-	
 	private ChartWindow chartWindow;
 	
 	/**
@@ -98,11 +96,7 @@ public class DrawingPanel extends JPanel {
 		super.paint(g);
 		
 		Graphics2D g2 = (Graphics2D)g;
-		
-		double currentTime = (System.nanoTime() - this.startTime) / 1000 / 1000.0; // nynejsi cas od vytvoreni instance v ms
-		if(currentTime % this.UPDATE_TIME < this.UPDATE_TIME) {	
-			updateSystem(this.UPDATE_TIME, g2);		// simulace je prepocitana a prekreslena
-		}
+		updateSystem(this.UPDATE_TIME, g2);		// simulace je prepocitana a prekreslena
 		
 		computeTime(); // vypocitani aktualniho casu simulace
 		drawTime(g2);	// vykresleni casu simulace
@@ -118,7 +112,7 @@ public class DrawingPanel extends JPanel {
 	 */
 	private void computeTime() {
 		long timeNow = System.nanoTime();
-		double currentTimePeriodS = (timeNow - startTime) / 1000 / 1000 / 1000.0;
+		double currentTimePeriodS = ((timeNow - startTime) / 1000 / 1000 / 1000.0);
 		
 		if(simulationActive) {
 			this.simulationTimeS = currentTimePeriodS * this.TStep - this.simulationStoppedFor * this.TStep;
@@ -147,7 +141,7 @@ public class DrawingPanel extends JPanel {
 	 * @param t		 ubehly cas od posledniho updatu v ms
 	 * @param g2	 graficky kontext
 	 */
-	private void updateSystem(double t, Graphics2D g2) {
+	public void updateSystem(double t, Graphics2D g2) {
 		t = (t/1000.0) * this.TStep;	// prevod casu ms -> s, pote prevod na cas simulace
 		
 		if(simulationActive) {	// simulace aktivni, hybe se
@@ -331,10 +325,10 @@ public class DrawingPanel extends JPanel {
 			g2.setFont(new Font("Monospaced", Font.PLAIN, 10));
 			g2.setColor(Color.MAGENTA);
 			g2.drawString("name: " + name, this.getWidth() - 225, 100);
-			g2.drawString("position: " + positionString + " km", this.getWidth() - 225, 125);
-			g2.drawString("speed: " + speedString + " km/h", this.getWidth() - 225, 150);
-			g2.drawString("acceleration: " + accelerationString + " km/h", this.getWidth() - 225, 175);
-			g2.drawString("radius: " + radiusString + " km", this.getWidth() - 225, 200);
+			g2.drawString("position: " + positionString + " m", this.getWidth() - 225, 125);
+			g2.drawString("speed: " + speedString + " m/s", this.getWidth() - 225, 150);
+			g2.drawString("acceleration: " + accelerationString + " m/s", this.getWidth() - 225, 175);
+			g2.drawString("radius: " + radiusString + " m", this.getWidth() - 225, 200);
 			g2.drawString("weight: " + weightString + " kg", this.getWidth() - 225, 225);
 		}
 		
@@ -432,7 +426,6 @@ public class DrawingPanel extends JPanel {
 	public void collectData() {
 		if(simulationActive) {
 			for (SpaceObject object : spaceObjects) {
-
 				object.getSpeedData().add(object.getSpeed());
 			}
 		}
@@ -444,7 +437,7 @@ public class DrawingPanel extends JPanel {
 	}
 	
 	public void updateChart() {
-		if(chartWindow != null) {
+		if(chartWindow != null && simulationActive) {
 			chartWindow.updateChart();
 		}
 		

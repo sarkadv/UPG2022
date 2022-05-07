@@ -22,7 +22,7 @@ public class ChartWindow extends JFrame {
 	
 	public ChartWindow(SpaceObject clickedObject, double DATA_COLLECTED_PER_S) {
 		this.clickedObject = clickedObject;
-		this.speedData = new ArrayList<Double>(clickedObject.getSpeedData());
+		this.speedData = clickedObject.getSpeedData();
 		this.DATA_COLLECTED_PER_S = DATA_COLLECTED_PER_S;
 		
 		initWindow();
@@ -47,7 +47,7 @@ public class ChartWindow extends JFrame {
 	    JFreeChart chart = ChartFactory.createXYLineChart(
 	            this.clickedObject.name + "'s speed during the last 30 seconds",
 	            "Time [s]",
-	            "Speed [km/h]",
+	            "Speed [m/s]",
 	            dataset,
 	            PlotOrientation.VERTICAL,
 	            true, true, false);
@@ -83,8 +83,6 @@ public class ChartWindow extends JFrame {
 	}
 	
 	public void updateChart() {
-		this.speedData = new ArrayList<Double>(clickedObject.getSpeedData());
-		
 		this.chart = createChart();
 		chartPanel.setChart(chart);
 		

@@ -30,7 +30,15 @@ public class WindowInitializer {
 		
 		okno.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		okno.setLocationRelativeTo(null);
-		okno.setVisible(true);		
+		okno.setVisible(true);	
+		
+		Timer chartTimer = new Timer();	
+		chartTimer.schedule(new TimerTask() {
+			public void run() {
+				panel.updateChart();
+				panel.collectData();
+			}
+		}, 0, 96);
 		
 		Timer paintTimer = new Timer();	
 		paintTimer.schedule(new TimerTask() {
@@ -38,14 +46,6 @@ public class WindowInitializer {
 				panel.repaint();	// panel se prekresli kazdych 17 ms
 			}
 		}, 0, 17);
-		
-		Timer chartTimer = new Timer();	
-		chartTimer.schedule(new TimerTask() {
-			public void run() {
-				panel.collectData();
-				panel.updateChart();
-			}
-		}, 0, 100);
 		
 		panel.addMouseListener(new MouseListener() {
 			
