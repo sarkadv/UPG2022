@@ -66,17 +66,20 @@ public abstract class SpaceObject {
 	/** graficka realizace objektu */
 	protected Shape shape;	
 	
+	/** kolekce neskalovanych trajektorii (souradnice X) */
 	protected List<Double> trajectoryX;
 	
+	/** kolekce neskalovanych trajektorii (souradnice Y) */
 	protected List<Double> trajectoryY;
 	
+	/** kolekce skalovanych trajektorii (souradnice X) */
 	protected List<Double> scaledTrajectoryX;
 	
+	/** kolekce skalovanych trajektorii (souradnice Y) */
 	protected List<Double> scaledTrajectoryY;
 	
+	/** kolekce nasbiranych hodnot rychlosti pro graf */
 	protected List<Double> speedData;
-	
-	protected int speedDataCollected;
 
 	/**
 	 * Konstruktor pro vytvoreni abstraktni casti vesmirneho objektu.
@@ -103,7 +106,7 @@ public abstract class SpaceObject {
 		this.trajectoryY = new ArrayList<Double>();
 		this.scaledTrajectoryX = new ArrayList<Double>();
 		this.scaledTrajectoryY = new ArrayList<Double>();
-		this.speedData = new ArrayList<Double>(61);
+		this.speedData = new ArrayList<Double>();
 		
 	}
 	
@@ -248,7 +251,7 @@ public abstract class SpaceObject {
 					biggerObject.setAcceleration(newAcceleration);
 					
 					for(int k = 0; k < biggerObject.getTrajectoryX().size(); k++) {
-						if(smallerObject.getTrajectoryX().size() > 0)
+						if(smallerObject.getTrajectoryX().size() > k)
 						{
 							double newTrajectoryPoint = (biggerObject.getTrajectoryX().get(k) + smallerObject.getTrajectoryX().get(k))/2.0;
 							biggerObject.getTrajectoryX().set(k, newTrajectoryPoint);
@@ -257,7 +260,7 @@ public abstract class SpaceObject {
 					}
 					
 					for(int k = 0; k < biggerObject.getTrajectoryY().size(); k++) {
-						if(smallerObject.getTrajectoryY().size() > 0) {
+						if(smallerObject.getTrajectoryY().size() > k) {
 							double newTrajectoryPoint = (biggerObject.getTrajectoryY().get(k) + smallerObject.getTrajectoryY().get(k))/2.0;
 							biggerObject.getTrajectoryY().set(k, newTrajectoryPoint);
 						}

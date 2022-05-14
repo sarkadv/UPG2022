@@ -80,6 +80,11 @@ public class Planet extends SpaceObject {
 		}
 	}
 
+	/**
+	 * Metoda pomoci atributu pro skalovane trajektorie X a Y vykresli trajektorii planety.
+	 * @param g2					graficky kontext
+	 * @param trajectoryLength		delka trajektorie (pocet bodu)
+	 */
 	@Override
 	public void drawTrajectory(Graphics2D g2, int trajectoryLength) {
 		

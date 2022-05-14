@@ -69,10 +69,13 @@ public class DrawingPanel extends JPanel {
 	/** kolize zapnuta / vypnuta */
 	private boolean collisionOn = true;
 	
+	/** velikost kolekci pro trajektorie - 60 pro 1 s */
 	private int trajectoryLength = 60;
 	
+	/** kolikrat za sekundu se ukladaji rychlosti objektu pro graf */
 	private final int DATA_COLLECT_PER_S = 10;
 	
+	/** okno s grafem */
 	private ChartWindow chartWindow;
 	
 	/**
@@ -423,24 +426,31 @@ public class DrawingPanel extends JPanel {
 		return yMax;
 	}
 	
+	/**
+	 * Metoda ulozi rychlosti vsech objektu do k tomu urcene kolekce.
+	 */
 	public void collectData() {
 		if(simulationActive) {
 			for (SpaceObject object : spaceObjects) {
 				object.getSpeedData().add(object.getSpeed());
 			}
 		}
-
 	}
 	
+	/**
+	 * Metoda zobrazi okno s grafem pro zvoleny objekt.
+	 */
 	public void showChart() {
 		chartWindow = new ChartWindow(this.currentToggled, this.DATA_COLLECT_PER_S);
 	}
 	
+	/**
+	 * Metoda aktualizuje graf podle novych dat.
+	 */
 	public void updateChart() {
-		if(chartWindow != null && simulationActive) {
+		if(chartWindow != null && simulationActive && this.currentToggled != null) {
 			chartWindow.updateChart();
 		}
-		
 	}
 	
 }

@@ -31,7 +31,7 @@ public class WindowInitializer {
 		okno.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		okno.setLocationRelativeTo(null);
 		okno.setVisible(true);	
-		
+	
 		Timer chartTimer = new Timer();	
 		chartTimer.schedule(new TimerTask() {
 			public void run() {
