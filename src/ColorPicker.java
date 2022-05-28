@@ -27,7 +27,6 @@ public class ColorPicker {
 	 */
 	public static Color randomColor() {
 		return colors[r.nextInt(colors.length)];
-		
 	}
 
 }

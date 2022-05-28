@@ -1,13 +1,24 @@
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import org.jfree.svg.SVGGraphics2D;
 
 
 /**
@@ -24,7 +35,67 @@ public class WindowInitializer {
 		DrawingPanel panel = new DrawingPanel(space);	// predani instance vesmiru do vykreslovaciho panelu
 		panel.setBackground(Color.BLACK);
 		
-		okno.add(panel);
+		okno.add(panel, BorderLayout.CENTER);
+		
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setBackground(ColorPicker.colors[4]);
+		okno.add(buttonPanel, BorderLayout.SOUTH);
+		
+		JButton btnSVG = new JButton("Export to SVG");
+		buttonPanel.add(btnSVG);
+		btnSVG.setBackground(Color.BLACK);
+		btnSVG.setFont(new Font("Monospaced", Font.PLAIN, 10));
+		btnSVG.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				panel.exportSVG();
+			}
+		});
+		
+		JButton btnPNG = new JButton("Export to PNG");
+		buttonPanel.add(btnPNG);
+		btnPNG.setBackground(Color.BLACK);
+		btnPNG.setFont(new Font("Monospaced", Font.PLAIN, 10));
+		btnPNG.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				panel.exportPNG();
+			}
+		});
+		
+		JButton btnFaster = new JButton("2x Faster");
+		buttonPanel.add(btnFaster);
+		btnFaster.setBackground(Color.BLACK);
+		btnFaster.setFont(new Font("Monospaced", Font.PLAIN, 10));
+		btnFaster.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				panel.faster();
+			}
+		});
+		
+		JButton btnSlower = new JButton("2x Slower");
+		buttonPanel.add(btnSlower);
+		btnSlower.setBackground(Color.BLACK);
+		btnSlower.setFont(new Font("Monospaced", Font.PLAIN, 10));
+		btnSlower.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				panel.slower();
+			}
+		});
+		
+		JButton btnReset = new JButton("Reset Time Step");
+		buttonPanel.add(btnReset);
+		btnReset.setBackground(Color.BLACK);
+		btnReset.setFont(new Font("Monospaced", Font.PLAIN, 10));
+		btnReset.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				panel.resetTimeStep();
+			}
+		});
+		
 		okno.pack(); 
 		okno.setSize(new Dimension(800, 600));	// zakladni rozmery 800 x 600 px
 		

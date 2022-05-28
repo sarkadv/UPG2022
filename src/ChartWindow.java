@@ -28,6 +28,8 @@ public class ChartWindow extends JFrame {
 	/** kolikrat za sekundu se uklada rychlost objektu */
 	final double DATA_COLLECTED_PER_S;
 	
+	
+	
 	/**
 	 * Konstruktor pro tridu ChartWindow.
 	 * @param clickedObject			uzivatelem zvoleny objekt

@@ -3,9 +3,20 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.imageio.ImageIO;
+import javax.swing.JFileChooser;
 import javax.swing.JPanel;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
+import org.jfree.svg.SVGGraphics2D;
 
 public class DrawingPanel extends JPanel {
 	
@@ -37,7 +48,7 @@ public class DrawingPanel extends JPanel {
 	private double simulationStoppedFor = 0;	
 	
 	/** kolikrat se v jednom updatu simulace prepocita zrychleni, rychlost, pozice, prekresleni */
-	private final double UPDATE_CONST = 100;
+	private double UPDATE_CONST = 100;
 	
 	/** kolekce vsech objektu typovana na jejich spolecneho abstraktniho predka */
 	private List<SpaceObject> spaceObjects;
@@ -45,8 +56,14 @@ public class DrawingPanel extends JPanel {
 	/** gravitacni konstanta */
 	private double GConstant;
 	
+	private final double T_STEP_ORIGINAL;
+	
 	/** casovy krok simulace */
 	private double TStep;
+	
+	private double fasterCount = 1;
+	
+	private double slowerCount = 1;
 
 	/** extremy pozic objektu */
 	private double x_min, x_max, y_min, y_max;
@@ -88,6 +105,7 @@ public class DrawingPanel extends JPanel {
 		this.spaceObjects = space.getSpaceObjects();
 		this.GConstant = space.getGConstant();
 		this.TStep = space.getTStep();
+		this.T_STEP_ORIGINAL = TStep;
 	}
 
 	/** 
@@ -451,6 +469,94 @@ public class DrawingPanel extends JPanel {
 		if(chartWindow != null && simulationActive && this.currentToggled != null) {
 			chartWindow.updateChart();
 		}
+	}
+	
+	public void faster() {
+		this.TStep = TStep * 2.0;
+		this.fasterCount++;
+	}
+	
+	public void slower() {
+		this.TStep = TStep / 2.0;
+		this.slowerCount++;
+	}
+	
+	public void resetTimeStep() {
+		this.TStep = this.T_STEP_ORIGINAL;
+		this.fasterCount = 1;
+		this.slowerCount = 1;
+	}
+	
+	public void exportSVG() {
+		SVGGraphics2D svg = new SVGGraphics2D(this.getWidth(), this.getHeight());
+		svg.setColor(Color.BLACK);
+		svg.fillRect(0, 0, this.getWidth(), this.getHeight());
+		
+		updateDrawing(svg);
+		
+		drawTime(svg);	// vykresleni casu simulace
+		
+		if(showingInfo) {	
+			drawInfo(svg);	// vykresleni informaci o objektu, pokud je nejaky vybran
+		}
+		
+		JFileChooser fileChooser = new JFileChooser();
+		int result = fileChooser.showSaveDialog(null);
+		String path = null;
+		
+        if (result == JFileChooser.APPROVE_OPTION){
+        	path = fileChooser.getSelectedFile().getAbsolutePath();
+        }
+		
+		if(path != null) {
+			if(path.contains(".")) {
+				String[] array = path.split("\\.");
+				path = array[0];
+			}
+			
+			path = path + ".svg";
+
+			try {
+				BufferedWriter bw = new BufferedWriter(new FileWriter(path));
+				bw.write(svg.getSVGElement());
+				bw.close();
+			}
+			catch (IOException e) {
+				System.out.println(e.getMessage());
+			}
+		}
+
+	}
+	
+	public void exportPNG() {
+		BufferedImage image = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB);
+		Graphics2D g2 = (Graphics2D)image.getGraphics();
+		this.paint(g2);
+		
+		JFileChooser fileChooser = new JFileChooser();
+		int result = fileChooser.showSaveDialog(null);
+		String path = null;
+		
+        if (result == JFileChooser.APPROVE_OPTION){
+        	path = fileChooser.getSelectedFile().getAbsolutePath();
+        }
+		
+		if(path != null) {
+			if(path.contains(".")) {
+				String[] array = path.split("\\.");
+				path = array[0];
+			}
+			
+			path = path + ".png";
+
+			try {
+				ImageIO.write(image, "png", new File(path));
+			}
+			catch (IOException e) {
+				System.out.println(e.getMessage());
+			}
+		}
+
 	}
 	
 }
