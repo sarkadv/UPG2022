@@ -3,6 +3,8 @@ import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Abstraktni trida predstavujici vesmirny objekt.
@@ -80,6 +82,8 @@ public abstract class SpaceObject {
 	
 	/** kolekce nasbiranych hodnot rychlosti pro graf */
 	protected List<Double> speedData;
+	
+	protected List<Integer> timeData;
 
 	/**
 	 * Konstruktor pro vytvoreni abstraktni casti vesmirneho objektu.
@@ -107,6 +111,7 @@ public abstract class SpaceObject {
 		this.scaledTrajectoryX = new ArrayList<Double>();
 		this.scaledTrajectoryY = new ArrayList<Double>();
 		this.speedData = new ArrayList<Double>();
+		this.timeData = new ArrayList<Integer>();
 		
 	}
 	
@@ -443,6 +448,33 @@ public abstract class SpaceObject {
 
 	public List<Double> getSpeedData() {
 		return speedData;
+	}
+	
+	public List<Integer> getTimeData() {
+		return timeData;
+	}
+	
+	public void removeHalfData() {
+		List<Double> newSpeedData = new ArrayList<Double>();
+		List<Integer> newTimeData = new ArrayList<Integer>();
+		
+		for(int i = 0; i < this.speedData.size() - 1; i++) {
+			if(i % 2 == 0) {
+				newSpeedData.add(this.speedData.get(i));
+				newTimeData.add(this.timeData.get(i));
+			}
+			else if((this.speedData.get(i) > this.speedData.get(i - 1)) && (this.speedData.get(i) > this.speedData.get(i + 1))){
+				newSpeedData.add(this.speedData.get(i));		// lokalni maximum
+				newTimeData.add(this.timeData.get(i));
+			}
+			else if((this.speedData.get(i) < this.speedData.get(i - 1)) && (this.speedData.get(i) < this.speedData.get(i + 1))){
+				newSpeedData.add(this.speedData.get(i));		// lokalni minimum
+				newTimeData.add(this.timeData.get(i));
+			}
+		}
+		
+		this.speedData = newSpeedData;
+		this.timeData = newTimeData;
 	}
 
 }

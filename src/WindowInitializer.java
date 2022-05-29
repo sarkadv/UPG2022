@@ -44,6 +44,7 @@ public class WindowInitializer {
 		JButton btnSVG = new JButton("Export to SVG");
 		buttonPanel.add(btnSVG);
 		btnSVG.setBackground(Color.BLACK);
+		btnSVG.setFocusable(false);
 		btnSVG.setFont(new Font("Monospaced", Font.PLAIN, 10));
 		btnSVG.addActionListener(new ActionListener() {
 			@Override
@@ -55,6 +56,7 @@ public class WindowInitializer {
 		JButton btnPNG = new JButton("Export to PNG");
 		buttonPanel.add(btnPNG);
 		btnPNG.setBackground(Color.BLACK);
+		btnPNG.setFocusable(false);
 		btnPNG.setFont(new Font("Monospaced", Font.PLAIN, 10));
 		btnPNG.addActionListener(new ActionListener() {
 			@Override
@@ -66,6 +68,7 @@ public class WindowInitializer {
 		JButton btnFaster = new JButton("2x Faster");
 		buttonPanel.add(btnFaster);
 		btnFaster.setBackground(Color.BLACK);
+		btnFaster.setFocusable(false);
 		btnFaster.setFont(new Font("Monospaced", Font.PLAIN, 10));
 		btnFaster.addActionListener(new ActionListener() {
 			@Override
@@ -77,6 +80,7 @@ public class WindowInitializer {
 		JButton btnSlower = new JButton("2x Slower");
 		buttonPanel.add(btnSlower);
 		btnSlower.setBackground(Color.BLACK);
+		btnSlower.setFocusable(false);
 		btnSlower.setFont(new Font("Monospaced", Font.PLAIN, 10));
 		btnSlower.addActionListener(new ActionListener() {
 			@Override
@@ -88,6 +92,7 @@ public class WindowInitializer {
 		JButton btnReset = new JButton("Reset Time Step");
 		buttonPanel.add(btnReset);
 		btnReset.setBackground(Color.BLACK);
+		btnReset.setFocusable(false);
 		btnReset.setFont(new Font("Monospaced", Font.PLAIN, 10));
 		btnReset.addActionListener(new ActionListener() {
 			@Override
@@ -102,14 +107,6 @@ public class WindowInitializer {
 		okno.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		okno.setLocationRelativeTo(null);
 		okno.setVisible(true);	
-	
-		Timer chartTimer = new Timer();	
-		chartTimer.schedule(new TimerTask() {
-			public void run() {
-				panel.updateChart();
-				panel.collectData();
-			}
-		}, 0, 96);
 		
 		Timer paintTimer = new Timer();	
 		paintTimer.schedule(new TimerTask() {

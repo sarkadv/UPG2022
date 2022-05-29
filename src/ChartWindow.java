@@ -1,6 +1,8 @@
 import java.awt.Color;
 import java.awt.Dimension;
 import java.util.List;
+import java.util.Map;
+
 import javax.swing.JFrame;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -19,26 +21,23 @@ public class ChartWindow extends JFrame {
 	/** kolekce rychlosti objektu */
 	List<Double> speedData;
 	
+	List<Integer> timeData;
+	
 	/** graf samotny */
 	JFreeChart chart;
 	
 	/** panel pro graf */
 	ChartPanel chartPanel;
 	
-	/** kolikrat za sekundu se uklada rychlost objektu */
-	final double DATA_COLLECTED_PER_S;
-	
-	
-	
 	/**
 	 * Konstruktor pro tridu ChartWindow.
 	 * @param clickedObject			uzivatelem zvoleny objekt
 	 * @param DATA_COLLECTED_PER_S	kolikrat za sekundu se uklada rychlost objektu
 	 */
-	public ChartWindow(SpaceObject clickedObject, double DATA_COLLECTED_PER_S) {
+	public ChartWindow(SpaceObject clickedObject) {
 		this.clickedObject = clickedObject;
 		this.speedData = clickedObject.getSpeedData();
-		this.DATA_COLLECTED_PER_S = DATA_COLLECTED_PER_S;
+		this.timeData = clickedObject.getTimeData();
 		
 		initWindow();
 	}
@@ -69,7 +68,7 @@ public class ChartWindow extends JFrame {
 		XYDataset dataset = createDataset();
 		
 	    JFreeChart chart = ChartFactory.createXYLineChart(
-	            this.clickedObject.name + "'s speed during the last 30 seconds",
+	            this.clickedObject.name + "'s speed from the start of the simulation",
 	            "Time [s]",
 	            "Speed [km/h]",
 	            dataset,
@@ -98,18 +97,11 @@ public class ChartWindow extends JFrame {
 	    XYSeriesCollection dataset = new XYSeriesCollection();
 	    XYSeries series = new XYSeries("speed");
 	    
-	    int startingPoint = 0;
-	    
-	    if(this.speedData.size() > 30*this.DATA_COLLECTED_PER_S) {
-	    	startingPoint = (int) (this.speedData.size() - 30*this.DATA_COLLECTED_PER_S);
+	    for(int i = 0; i < this.timeData.size(); i++) {
+	    	series.add((int)this.timeData.get(i), this.speedData.get(i)/3.6);	// prevod m/s na km/h
 	    }
-	    
-		for (int i = startingPoint; i < this.speedData.size(); i++) {
-			series.add(i / this.DATA_COLLECTED_PER_S, this.speedData.get(i)/3.6);	// prevod m/s na km/h
-		}
 
 	    dataset.addSeries(series);
-	    
 	    return dataset;
 	}
 	
@@ -117,6 +109,9 @@ public class ChartWindow extends JFrame {
 	 * Metoda zavola metodu pro znovuvytvoreni grafu a graf prida do panelu.
 	 */
 	public void updateChart() {
+	    this.timeData = this.clickedObject.getTimeData();
+	    this.speedData = this.clickedObject.getSpeedData();
+	    
 		this.chart = createChart();
 		chartPanel.setChart(chart);
 		

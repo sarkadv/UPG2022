@@ -38,16 +38,9 @@ public class DrawingPanel extends JPanel {
 	/** je simulace aktivni / pozastavena? */
 	private boolean simulationActive = true; 
 	
-	/** cas zastaveni simulace v sekundach */
-	private double simulationStoppedWhen = 0;
-	
-	/** cas pokracovani simulace v sekundach */
-	private double simulationResumedWhen = 0; 
-	
-	/** cas zastavene simulace celkem v sekundach */
-	private double simulationStoppedFor = 0;	
-	
 	/** kolikrat se v jednom updatu simulace prepocita zrychleni, rychlost, pozice, prekresleni */
+	private final double UPDATE_CONST_ORIGINAL = 100;
+	
 	private double UPDATE_CONST = 100;
 	
 	/** kolekce vsech objektu typovana na jejich spolecneho abstraktniho predka */
@@ -60,10 +53,6 @@ public class DrawingPanel extends JPanel {
 	
 	/** casovy krok simulace */
 	private double TStep;
-	
-	private double fasterCount = 1;
-	
-	private double slowerCount = 1;
 
 	/** extremy pozic objektu */
 	private double x_min, x_max, y_min, y_max;
@@ -89,11 +78,10 @@ public class DrawingPanel extends JPanel {
 	/** velikost kolekci pro trajektorie - 60 pro 1 s */
 	private int trajectoryLength = 60;
 	
-	/** kolikrat za sekundu se ukladaji rychlosti objektu pro graf */
-	private final int DATA_COLLECT_PER_S = 10;
-	
 	/** okno s grafem */
 	private ChartWindow chartWindow;
+	
+	private final int MAX_CHART_VALUES = 300;
 	
 	/**
 	 * Konstruktor nastavi panelu rozmery a dulezite instance + konstanty.
@@ -134,10 +122,11 @@ public class DrawingPanel extends JPanel {
 	private void computeTime() {
 		long timeNow = System.nanoTime();
 		double currentTimePeriodS = ((timeNow - startTime) / 1000 / 1000 / 1000.0);
+		startTime = System.nanoTime();
 		
 		if(simulationActive) {
-			this.simulationTimeS = currentTimePeriodS * this.TStep - this.simulationStoppedFor * this.TStep;
-			this.actualTimeS = currentTimePeriodS - this.simulationStoppedFor;
+			this.simulationTimeS += currentTimePeriodS * this.TStep;
+			this.actualTimeS += currentTimePeriodS;
 		}
 	}
 	
@@ -146,7 +135,7 @@ public class DrawingPanel extends JPanel {
 	 * @param g2	graficky kontext
 	 */
 	private void drawTime(Graphics2D g2) {
-		String simulationTimeString = String.format("%.0g", simulationTimeS);
+		String simulationTimeString = String.format("%.0f", simulationTimeS);
 		String actualTimeString = String.format("%.0f", actualTimeS);
 		
 		g2.setFont(new Font("Monospaced", Font.PLAIN, 10));
@@ -213,10 +202,12 @@ public class DrawingPanel extends JPanel {
 						object.checkForCollision(spaceObjects, i);
 					}
 				}	
+				
 			}
 		}
+		
+		collectData((int)this.simulationTimeS);
 		updateDrawing(g2);
-
 	}
 	
 	/**
@@ -366,15 +357,7 @@ public class DrawingPanel extends JPanel {
 	 * Metoda prepina statusy simulace a uklada casy prepnuti.
 	 */
 	public void changeSimulationStatus() {
-		if(simulationActive) {
-			this.simulationActive = false;
-			this.simulationStoppedWhen = System.nanoTime() / 1000 / 1000 / 1000.0;
-		}
-		else {
-			this.simulationActive = true;
-			this.simulationResumedWhen = System.nanoTime() / 1000 / 1000 / 1000.0;
-			this.simulationStoppedFor += this.simulationResumedWhen - this.simulationStoppedWhen;
-		}
+		simulationActive = !simulationActive;
 	}
 	
 	/**
@@ -447,19 +430,25 @@ public class DrawingPanel extends JPanel {
 	/**
 	 * Metoda ulozi rychlosti vsech objektu do k tomu urcene kolekce.
 	 */
-	public void collectData() {
+	public void collectData(int time) {
 		if(simulationActive) {
 			for (SpaceObject object : spaceObjects) {
+				if(object.getSpeedData().size() >= this.MAX_CHART_VALUES) {
+					object.removeHalfData();
+				}
 				object.getSpeedData().add(object.getSpeed());
+				object.getTimeData().add((int)this.simulationTimeS);
 			}
+			updateChart();
 		}
+		
 	}
 	
 	/**
 	 * Metoda zobrazi okno s grafem pro zvoleny objekt.
 	 */
 	public void showChart() {
-		chartWindow = new ChartWindow(this.currentToggled, this.DATA_COLLECT_PER_S);
+		chartWindow = new ChartWindow(this.currentToggled);
 	}
 	
 	/**
@@ -472,19 +461,26 @@ public class DrawingPanel extends JPanel {
 	}
 	
 	public void faster() {
-		this.TStep = TStep * 2.0;
-		this.fasterCount++;
+		if(simulationActive) {
+			this.TStep = TStep * 2.0;
+			this.UPDATE_CONST = UPDATE_CONST * 2.0;
+		}
+
 	}
 	
 	public void slower() {
-		this.TStep = TStep / 2.0;
-		this.slowerCount++;
+		if(simulationActive) {
+			this.TStep = TStep / 2.0;
+			this.UPDATE_CONST = UPDATE_CONST / 2.0;
+		}
+
 	}
 	
 	public void resetTimeStep() {
-		this.TStep = this.T_STEP_ORIGINAL;
-		this.fasterCount = 1;
-		this.slowerCount = 1;
+		if(simulationActive) {
+			this.TStep = this.T_STEP_ORIGINAL;
+			this.UPDATE_CONST = this.UPDATE_CONST_ORIGINAL;
+		}
 	}
 	
 	public void exportSVG() {
