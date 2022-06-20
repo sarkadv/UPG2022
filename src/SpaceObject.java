@@ -65,9 +65,6 @@ public abstract class SpaceObject {
 	/** barva */
 	protected final Color color;
 	
-	/** graficka realizace objektu */
-	protected Shape shape;	
-	
 	/** kolekce neskalovanych trajektorii (souradnice X) */
 	protected List<Double> trajectoryX;
 	
@@ -368,14 +365,6 @@ public abstract class SpaceObject {
 	
 	public double getScaledRadius() {
 		return this.scaledRadius;
-	}
-	
-	public void setShape(Shape shape) {
-		this.shape = shape;
-	}
-	
-	public Shape getShape() {
-		return this.shape;
 	}
 	
 	public double getAcceleration() {

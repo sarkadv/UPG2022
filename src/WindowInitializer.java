@@ -9,6 +9,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.util.Timer;
@@ -101,6 +103,18 @@ public class WindowInitializer {
 			}
 		});
 		
+		JButton btnCenter = new JButton("Center");
+		buttonPanel.add(btnCenter);
+		btnCenter.setBackground(Color.BLACK);
+		btnCenter.setFocusable(false);
+		btnCenter.setFont(new Font("Monospaced", Font.PLAIN, 10));
+		btnCenter.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				panel.center();
+			}
+		});
+		
 		okno.pack(); 
 		okno.setSize(new Dimension(800, 600));	// zakladni rozmery 800 x 600 px
 		
@@ -158,16 +172,42 @@ public class WindowInitializer {
 			}
 		});
 		
+		panel.addMouseWheelListener(new MouseWheelListener() {
+
+			@Override
+			public void mouseWheelMoved(MouseWheelEvent e) {
+				if(e.getWheelRotation() < 0) {
+					panel.changeZoom(1/20.0);
+				}
+				else if (e.getWheelRotation() > 0){
+					panel.changeZoom(-1/20.0);
+				}
+			}
+			
+		});
+		
 		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
             @Override
             /**
              * Pokud uzivatel zmacne mezernik, simulace se pozastavi / znovu rozbehne.
              * @param e		udalost
-             * @return		true pokud uzivatel zmacknul mezernik / jinak false
+             * @return		true pokud uzivatel zmacknul mezernik, W, S, A, D / sipky / jinak false
              */
             public boolean dispatchKeyEvent(KeyEvent e) {
                 if (e.getID() == KeyEvent.KEY_PRESSED && e.getKeyChar() == ' ') {
                     panel.changeSimulationStatus();
+                }
+                else if (e.getID() == KeyEvent.KEY_PRESSED && (e.getKeyChar() == 'w' || e.getKeyCode() == KeyEvent.VK_UP)) {
+                	panel.up(50);
+                }
+                else if (e.getID() == KeyEvent.KEY_PRESSED && (e.getKeyChar() == 's' || e.getKeyCode() == KeyEvent.VK_DOWN)) {
+                	panel.up(-50);
+                }
+                else if (e.getID() == KeyEvent.KEY_PRESSED && (e.getKeyChar() == 'd' || e.getKeyCode() == KeyEvent.VK_RIGHT)) {
+                	panel.right(-50);
+                }
+                else if (e.getID() == KeyEvent.KEY_PRESSED && (e.getKeyChar() == 'a' || e.getKeyCode() == KeyEvent.VK_LEFT)) {
+                	panel.right(50);
                 }
                 
                 return false;

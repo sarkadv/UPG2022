@@ -3,6 +3,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -38,9 +39,10 @@ public class DrawingPanel extends JPanel {
 	/** je simulace aktivni / pozastavena? */
 	private boolean simulationActive = true; 
 	
-	/** kolikrat se v jednom updatu simulace prepocita zrychleni, rychlost, pozice, prekresleni */
+	/** kolikrat se v jednom updatu simulace prepocita zrychleni, rychlost, pozice, prekresleni - puvodni hodnota */
 	private final double UPDATE_CONST_ORIGINAL = 100;
 	
+	/** kolikrat se v jednom updatu simulace prepocita zrychleni, rychlost, pozice, prekresleni */
 	private double UPDATE_CONST = 100;
 	
 	/** kolekce vsech objektu typovana na jejich spolecneho abstraktniho predka */
@@ -49,6 +51,7 @@ public class DrawingPanel extends JPanel {
 	/** gravitacni konstanta */
 	private double GConstant;
 	
+	/** casovy krok simulace - puvodni hodnota */
 	private final double T_STEP_ORIGINAL;
 	
 	/** casovy krok simulace */
@@ -81,7 +84,23 @@ public class DrawingPanel extends JPanel {
 	/** okno s grafem */
 	private ChartWindow chartWindow;
 	
+	/** kolik muze mit maximalne bodu graf rychlosti */
 	private final int MAX_CHART_VALUES = 300;
+	
+	/** kolikrat je vesmir priblizeny / oddaleny */
+	private double zoom = 1;
+	
+	/** posunuti vesmiru nahoru / dolu */
+	private double up = 0;
+	
+	/** cislo, ktere se ma postupne pricist k promenne up */
+	private double addUp = 0;
+	
+	/** posunuti vesmiru doprava / doleva */
+	private double right = 0;
+	
+	/** cislo, ktere se ma postupne pricist k promenne right */
+	private double addRight = 0;
 	
 	/**
 	 * Konstruktor nastavi panelu rozmery a dulezite instance + konstanty.
@@ -135,7 +154,7 @@ public class DrawingPanel extends JPanel {
 	 * @param g2	graficky kontext
 	 */
 	private void drawTime(Graphics2D g2) {
-		String simulationTimeString = String.format("%.0f", simulationTimeS);
+		String simulationTimeString = String.format("%.0g", simulationTimeS);
 		String actualTimeString = String.format("%.0f", actualTimeS);
 		
 		g2.setFont(new Font("Monospaced", Font.PLAIN, 10));
@@ -240,10 +259,27 @@ public class DrawingPanel extends JPanel {
 		
 		SpaceObject.MAX_RADIUS = Math.min(window_width/2, window_height/2);	// nejvyssi mozny polomer objektu podle velikosti okna
 		
+		if(this.addRight > 0) {
+			this.right += 5;
+			this.addRight -= 5;
+		}
+		else if (this.addRight < 0) {
+			this.right -= 5;
+			this.addRight += 5;
+		}
+		if(this.addUp > 0) {
+			this.up += 5;
+			this.addUp -= 5;
+		}
+		else if(this.addUp < 0) {
+			this.up -= 5;
+			this.addUp += 5;
+		}
+		
 		for(SpaceObject object : spaceObjects) {		// nalezeni spravnych pozic po scalu
-			double x = (object.getPositionX() - x_min)*scale + window_width/2 - (world_width*scale)/2;
-			double y = (object.getPositionY() - y_min)*scale + window_height/2 - (world_height*scale)/2;
-			double radius = object.getRadius()*scale;
+			double x = ((object.getPositionX() - x_min)*scale + window_width/2 - (world_width*scale)/2) * zoom + right;
+			double y = ((object.getPositionY() - y_min)*scale + window_height/2 - (world_height*scale)/2) * zoom + up;
+			double radius = object.getRadius()*scale*zoom;
 			
 			object.setScaledRadius(radius);	
 			object.setScaledPositionX(x);
@@ -266,19 +302,19 @@ public class DrawingPanel extends JPanel {
 			List<Double> scaledTrajectoryY = new ArrayList<Double>();
 			
 			for(int i = 0; i < object.getTrajectoryX().size(); i++) {
-				double trajectoryPointX = (object.getTrajectoryX().get(i) - x_min)*scale + window_width/2 - (world_width*scale)/2;
+				double trajectoryPointX = ((object.getTrajectoryX().get(i) - x_min)*scale + window_width/2 - (world_width*scale)/2) * zoom + right;
 				scaledTrajectoryX.add(trajectoryPointX);
 			}
 			
 			object.setScaledTrajectoryX(scaledTrajectoryX);
 			
 			for(int i = 0; i < object.getTrajectoryY().size(); i++) {
-				double trajectoryPointY = (object.getTrajectoryY().get(i) - y_min)*scale + window_height/2 - (world_height*scale)/2;
+				double trajectoryPointY = ((object.getTrajectoryY().get(i) - y_min)*scale + window_height/2 - (world_height*scale)/2) * zoom + up;
 				scaledTrajectoryY.add(trajectoryPointY);
 			}
 			
 			object.setScaledTrajectoryY(scaledTrajectoryY);
-			
+
 			object.drawTrajectory(g2, this.trajectoryLength);
 			object.draw(g2);	// vykresleni objektu
 			
@@ -298,6 +334,7 @@ public class DrawingPanel extends JPanel {
 				return true;
 			}
 		}
+		
 		this.currentToggled = null;
 		return false;
 	}
@@ -316,7 +353,7 @@ public class DrawingPanel extends JPanel {
 	private void drawInfo(Graphics2D g2) {
 		if(spaceObjects.contains(this.currentToggled)) {		// pokud kolekce stale obsahuje dany objekt
 															// mohl byt odstranen kolizi
-			
+
 			this.currentToggled.drawHighlight(g2, Color.GREEN);	// zvyrazneni prave vybraneho objektu
 			
 			String name = this.currentToggled.getName();
@@ -460,6 +497,9 @@ public class DrawingPanel extends JPanel {
 		}
 	}
 	
+	/**
+	 * Metoda dvakrat zrychli casovy krok.
+	 */
 	public void faster() {
 		if(simulationActive) {
 			this.TStep = TStep * 2.0;
@@ -468,6 +508,9 @@ public class DrawingPanel extends JPanel {
 
 	}
 	
+	/**
+	 * Metoda dvakrat zpomali casovy krok.
+	 */
 	public void slower() {
 		if(simulationActive) {
 			this.TStep = TStep / 2.0;
@@ -476,6 +519,9 @@ public class DrawingPanel extends JPanel {
 
 	}
 	
+	/**
+	 * Metoda vyresetuje casovy krok.
+	 */
 	public void resetTimeStep() {
 		if(simulationActive) {
 			this.TStep = this.T_STEP_ORIGINAL;
@@ -483,18 +529,50 @@ public class DrawingPanel extends JPanel {
 		}
 	}
 	
+	/**
+	 * Metoda priblizi / oddali vesmir.
+	 * @param value		hodnota, o kterou se ma vesmir priblizit / oddalit
+	 */
+	public void changeZoom(double value) {
+		this.zoom += value;
+	}
+	
+	/**
+	 * Metoda posune vesmir nahoru / dolů.
+	 * @param value		hodnota, o kterou se ma vesmir posunout
+	 */
+	public void up(int value) {
+		this.addUp = value;
+	}
+	
+	/**
+	 * Metoda posune vesmir doprava / doleva.
+	 * @param value		hodnota, o kterou se ma vesmir posunout
+	 */
+	public void right(int value) {
+		this.addRight = value;
+	}
+	
+	/**
+	 * Metoda vycentruje vesmir doprostred okna.
+	 */
+	public void center() {
+		this.zoom = 1;
+		this.up = 0;
+		this.addUp = 0;
+		this.right = 0;
+		this.addRight = 0;
+	}
+	
+	/**
+	 * Metoda vytvori a vyexportuje obrazek ve formatu SVG.
+	 */
 	public void exportSVG() {
 		SVGGraphics2D svg = new SVGGraphics2D(this.getWidth(), this.getHeight());
 		svg.setColor(Color.BLACK);
 		svg.fillRect(0, 0, this.getWidth(), this.getHeight());
 		
-		updateDrawing(svg);
-		
-		drawTime(svg);	// vykresleni casu simulace
-		
-		if(showingInfo) {	
-			drawInfo(svg);	// vykresleni informaci o objektu, pokud je nejaky vybran
-		}
+		this.paint(svg);
 		
 		JFileChooser fileChooser = new JFileChooser();
 		int result = fileChooser.showSaveDialog(null);
@@ -524,6 +602,9 @@ public class DrawingPanel extends JPanel {
 
 	}
 	
+	/**
+	 * Metoda vytvori a vyexportuje obrazek ve formatu PNG.
+	 */
 	public void exportPNG() {
 		BufferedImage image = new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB);
 		Graphics2D g2 = (Graphics2D)image.getGraphics();

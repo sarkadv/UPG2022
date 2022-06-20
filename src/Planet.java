@@ -2,6 +2,8 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Ellipse2D.Double;
+import java.util.Random;
 
 /**
  * Trida reprezentujici planetu.
@@ -23,7 +25,6 @@ public class Planet extends SpaceObject {
 		
 		super(name, typ, positionX, positionY, speedX, speedY, weight);
 		this.radius = findRadius();
-		this.shape = new Ellipse2D.Double(this.scaledPositionX, this.scaledPositionY, 2*this.scaledRadius, 2*this.scaledRadius);
 	}
 	
 	/**
@@ -39,9 +40,9 @@ public class Planet extends SpaceObject {
 	 * @param g2	graficky kontext
 	 */
 	public void draw(Graphics2D g2) {
-		this.shape =  new Ellipse2D.Double(this.scaledPositionX, this.scaledPositionY, 2*this.scaledRadius, 2*this.scaledRadius);
 		g2.setColor(this.color);
 		g2.fill(new Ellipse2D.Double(this.scaledPositionX, this.scaledPositionY, 2*this.scaledRadius, 2*this.scaledRadius));
+
 	}
 	
 	/**
@@ -50,7 +51,6 @@ public class Planet extends SpaceObject {
 	 * @param color		barva zvyrazneni planbety
 	 */
 	public void drawHighlight(Graphics2D g2, Color color) {
-		this.shape =  new Ellipse2D.Double(this.scaledPositionX, this.scaledPositionY, 2*this.scaledRadius, 2*this.scaledRadius);
 		g2.setColor(color);
 		g2.setStroke(new BasicStroke(4));
 		g2.draw(new Ellipse2D.Double(this.scaledPositionX, this.scaledPositionY, 2*this.scaledRadius, 2*this.scaledRadius));

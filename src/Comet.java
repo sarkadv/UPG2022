@@ -2,7 +2,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 
 /**
- * Trida v budoucnu reprezentujici kometu.
+ * Trida reprezentujici kometu.
  */
 public class Comet extends SpaceObject {
 	
